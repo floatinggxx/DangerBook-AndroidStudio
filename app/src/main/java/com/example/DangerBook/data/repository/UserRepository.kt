@@ -3,12 +3,12 @@ import com.example.DangerBook.data.local.user.UserDao
 import com.example.DangerBook.data.local.user.UserEntity
 import kotlinx.coroutines.flow.Flow
 
-// Repositorio para manejar la lógica de negocio de usuarios
+// Lógica de negocio de usuarios
 class UserRepository(
     private val userDao: UserDao
 ) {
 
-    // Login: validar credenciales
+    // Validar credenciales
     suspend fun login(email: String, password: String): Result<UserEntity> {
         val user = userDao.getByEmail(email)
         return if (user != null && user.password == password) {
@@ -24,7 +24,7 @@ class UserRepository(
         email: String,
         phone: String,
         pass: String,
-        role: String = "user", // Por defecto es cliente
+        role: String = "user",
         photoUri: String? = null
     ): Result<Long> {
         val exists = userDao.getByEmail(email) != null

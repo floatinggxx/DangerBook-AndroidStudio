@@ -14,16 +14,16 @@ import java.util.Calendar
 // Estado para agendar una nueva cita
 data class BookAppointmentUiState(
     val selectedServiceId: Long? = null, // Servicio seleccionado
-    val selectedBarberId: Long? = null, // Barbero seleccionado (null = "cualquier barbero")
+    val selectedBarberId: Long? = null, // Barbero seleccionado
     val selectedDate: Calendar? = null, // Fecha seleccionada
-    val selectedTimeSlot: Long? = null, // Horario seleccionado (timestamp)
+    val selectedTimeSlot: Long? = null, // Horario seleccionado
     val availableTimeSlots: List<Long> = emptyList(), // Horarios disponibles
     val notes: String = "", // Notas adicionales del cliente
     val isLoadingSlots: Boolean = false, // Indica si está cargando horarios
     val isSubmitting: Boolean = false, // Indica si está creando la cita
     val canSubmit: Boolean = false, // Habilita el botón de agendar
     val success: Boolean = false, // Indica si la cita se creó exitosamente
-    val errorMsg: String? = null // Mensaje de error
+    val errorMsg: String? = null
 )
 
 // Estado para visualizar las citas del usuario

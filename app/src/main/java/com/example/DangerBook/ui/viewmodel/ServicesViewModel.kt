@@ -12,10 +12,10 @@ import kotlinx.coroutines.launch
 
 // Estado de UI para la pantalla de servicios
 data class ServicesUiState(
-    val services: List<ServiceEntity> = emptyList(), // Lista de servicios disponibles
-    val barbers: List<BarberEntity> = emptyList(), // Lista de barberos disponibles
-    val isLoading: Boolean = true, // Indica si está cargando datos
-    val errorMsg: String? = null // Mensaje de error si algo falla
+    val services: List<ServiceEntity> = emptyList(),
+    val barbers: List<BarberEntity> = emptyList(),
+    val isLoading: Boolean = true,
+    val errorMsg: String? = null
 )
 
 // ViewModel para gestionar los servicios y barberos

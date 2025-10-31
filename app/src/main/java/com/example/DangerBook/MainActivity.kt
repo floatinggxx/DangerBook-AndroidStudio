@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Permiso concedido
+
         } else {
             // Permiso denegado (la app seguirá funcionando sin notificaciones)
         }
@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
         // Crear canal de notificaciones
         NotificationHelper.createNotificationChannel(this)
 
-        // Solicitar permiso de notificaciones en Android 13+
+        // Solicitar permiso de notificaciones
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -123,14 +123,14 @@ fun AppRoot() {
         )
     )
 
-    // Callback para cerrar sesión
+    // Cerrar sesión
     val handleLogout: () -> Unit = {
         scope.launch {
             userPrefs.clearSession()
         }
     }
 
-    // Callback para actualizar foto de perfil
+    // Actualizar foto de perfil
     val handlePhotoUpdated: (String) -> Unit = { photoUri ->
         scope.launch {
             currentUserId?.let { userId ->

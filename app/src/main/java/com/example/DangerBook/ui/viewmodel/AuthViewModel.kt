@@ -21,7 +21,7 @@ data class LoginUiState(
     val canSubmit: Boolean = false,
     val success: Boolean = false,
     val errorMsg: String? = null,
-    val loggedUser: UserEntity? = null // Usuario autenticado (NUEVO)
+    val loggedUser: UserEntity? = null
 )
 
 // Estado de UI para Registro
@@ -31,7 +31,7 @@ data class RegisterUiState(
     val phone: String = "",
     val pass: String = "",
     val confirm: String = "",
-    val role: String = "user", // NUEVO: rol por defecto "user"
+    val role: String = "user",
     val nameError: String? = null,
     val emailError: String? = null,
     val phoneError: String? = null,
@@ -159,7 +159,7 @@ class AuthViewModel(
 
         viewModelScope.launch {
             _register.update { it.copy(isSubmitting = true, errorMsg = null, success = false) }
-            delay(700) // Simulamos tiempo de red
+            delay(700)
 
             val result = repository.register(
                 name = s.name,

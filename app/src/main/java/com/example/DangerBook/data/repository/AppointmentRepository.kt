@@ -1,14 +1,15 @@
 package com.example.DangerBook.data.repository
+
 import android.content.Context
 import com.example.DangerBook.data.local.appointment.AppointmentDao
 import com.example.DangerBook.data.local.appointment.AppointmentEntity
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 
-// Repositorio para manejar la lógica de negocio de las citas
+// Lógica de negocio de las citas
 class AppointmentRepository(
     private val appointmentDao: AppointmentDao,
-    private val context: Context // Necesario para enviar notificaciones
+    private val context: Context
 ) {
 
     // Crear una nueva cita
@@ -26,7 +27,7 @@ class AppointmentRepository(
                 return Result.failure(IllegalArgumentException("No puedes agendar citas en el pasado"))
             }
 
-            // Verificar si hay conflictos de horario (si se especificó un barbero)
+            // Verificar si hay conflictos de horario
             if (barberId != null) {
                 val conflicts = appointmentDao.countConflictingAppointments(barberId, dateTime)
                 if (conflicts > 0) {
@@ -58,7 +59,7 @@ class AppointmentRepository(
         return appointmentDao.getByUserId(userId)
     }
 
-    // Obtener solo las citas próximas (pendientes/confirmadas)
+    // Obtener solo las citas próximas
     fun getUpcomingAppointments(userId: Long): Flow<List<AppointmentEntity>> {
         return appointmentDao.getUpcomingByUserId(userId)
     }
@@ -112,12 +113,12 @@ class AppointmentRepository(
     ): List<Long> {
         // Configurar inicio y fin del día
         val startOfDay = date.clone() as Calendar
-        startOfDay.set(Calendar.HOUR_OF_DAY, 9) // Horario de apertura: 9 AM
+        startOfDay.set(Calendar.HOUR_OF_DAY, 9)
         startOfDay.set(Calendar.MINUTE, 0)
         startOfDay.set(Calendar.SECOND, 0)
 
         val endOfDay = date.clone() as Calendar
-        endOfDay.set(Calendar.HOUR_OF_DAY, 20) // Horario de cierre: 8 PM
+        endOfDay.set(Calendar.HOUR_OF_DAY, 20)
         endOfDay.set(Calendar.MINUTE, 0)
         endOfDay.set(Calendar.SECOND, 0)
 
@@ -135,7 +136,7 @@ class AppointmentRepository(
         while (currentSlot.before(endOfDay)) {
             val slotTime = currentSlot.timeInMillis
 
-            // Verificar si este slot no colisiona con citas existentes
+            // Verificar que no colisione
             val hasConflict = existingAppointments.any { appointment ->
                 val appointmentEnd = appointment.dateTime + (appointment.durationMinutes * 60 * 1000)
                 val slotEnd = slotTime + (serviceDurationMinutes * 60 * 1000)

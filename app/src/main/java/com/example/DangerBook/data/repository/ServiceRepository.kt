@@ -5,13 +5,13 @@ import com.example.DangerBook.data.local.service.ServiceDao
 import com.example.DangerBook.data.local.service.ServiceEntity
 import kotlinx.coroutines.flow.Flow
 
-// Repositorio para manejar la lógica de negocio de servicios y barberos
+// Lógica de negocio de servicios y barberos
 class ServiceRepository(
     private val serviceDao: ServiceDao,
     private val barberDao: BarberDao
 ) {
 
-    // Obtener todos los servicios activos (como Flow para observar cambios)
+    // Obtener todos los servicios activos (Flow para observar cambios)
     fun getAllActiveServices(): Flow<List<ServiceEntity>> {
         return serviceDao.getAllActive()
     }
@@ -21,7 +21,7 @@ class ServiceRepository(
         return serviceDao.getById(serviceId)
     }
 
-    // Obtener todos los barberos disponibles (como Flow)
+    // Obtener todos los barberos disponibles con Flow
     fun getAllAvailableBarbers(): Flow<List<BarberEntity>> {
         return barberDao.getAllAvailable()
     }
