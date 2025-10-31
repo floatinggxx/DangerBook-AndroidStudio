@@ -6,16 +6,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.uinavegacion"
+    namespace = "com.example.Dangerbook"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.uinavegacion"
+        applicationId = "com.example.Dangerbook"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,20 +27,22 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -58,23 +59,30 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    //librerias nuevas
+    // Navegación
     implementation("androidx.navigation:navigation-compose:2.9.5")
+
+    // ViewModel y Lifecycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
+
+    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-    // Material icons (necesarios para Visibility / VisibilityOff)
+
+    // Material Icons Extended
     implementation("androidx.compose.material:material-icons-extended")
 
+    // Room Database
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
+    // FileProvider para carga de imágenes (Coil)
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     // DataStore para persistencia de sesión
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
-    // Notificaciones programadas
+    // WorkManager para notificaciones programadas
     implementation("androidx.work:work-runtime-ktx:2.10.0")
 }
