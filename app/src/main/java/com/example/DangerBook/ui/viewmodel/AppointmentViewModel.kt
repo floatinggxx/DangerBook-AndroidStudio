@@ -5,13 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.example.DangerBook.data.local.appointment.AppointmentEntity
 import com.example.DangerBook.data.local.storage.UserPreferences
 import com.example.DangerBook.data.repository.AppointmentRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
+
+sealed interface BookingResult {
+    object Success : BookingResult
+}
 
 // Estado para agendar una nueva cita
 data class BookAppointmentUiState(
@@ -24,7 +30,6 @@ data class BookAppointmentUiState(
     val isLoadingSlots: Boolean = false,
     val isSubmitting: Boolean = false,
     val canSubmit: Boolean = false,
-    val success: Boolean = false,
     val errorMsg: String? = null
 )
 
@@ -44,6 +49,9 @@ class AppointmentViewModel(
 
     private val _bookState = MutableStateFlow(BookAppointmentUiState())
     val bookState: StateFlow<BookAppointmentUiState> = _bookState
+
+    private val _bookingResult = MutableSharedFlow<BookingResult>()
+    val bookingResult = _bookingResult.asSharedFlow()
 
     private val _myAppointmentsState = MutableStateFlow(MyAppointmentsUiState())
     val myAppointmentsState: StateFlow<MyAppointmentsUiState> = _myAppointmentsState
@@ -145,10 +153,18 @@ class AppointmentViewModel(
         val state = _bookState.value
         if (!state.canSubmit || state.isSubmitting) return
 
+        val currentBarberId = state.selectedBarberId
+        val currentServiceId = state.selectedServiceId
+        val currentTimeSlot = state.selectedTimeSlot
+
+        if (currentBarberId == null || currentServiceId == null || currentTimeSlot == null) {
+            _bookState.update { it.copy(errorMsg = "Por favor, complete todos los campos requeridos.") }
+            return
+        }
+
         viewModelScope.launch {
             _bookState.update { it.copy(isSubmitting = true, errorMsg = null) }
 
-            // Obtener el ID de usuario más reciente antes de agendar
             val currentUserId = userPreferences.userId.first()
             if (currentUserId == null || currentUserId == -1L) {
                 _bookState.update { it.copy(isSubmitting = false, errorMsg = "Debes iniciar sesión para agendar una cita.") }
@@ -158,19 +174,18 @@ class AppointmentViewModel(
             try {
                 val result = repository.createAppointment(
                     userId = currentUserId,
-                    barberId = state.selectedBarberId!!,
-                    serviceId = state.selectedServiceId!!,
-                    dateTime = state.selectedTimeSlot!!,
+                    barberId = currentBarberId,
+                    serviceId = currentServiceId,
+                    dateTime = currentTimeSlot,
                     durationMinutes = serviceDurationMinutes,
                     notes = state.notes.ifBlank { null }
                 )
 
-                _bookState.update {
-                    if (result.isSuccess) {
-                        it.copy(isSubmitting = false, success = true)
-                    } else {
-                        it.copy(isSubmitting = false, success = false, errorMsg = result.exceptionOrNull()?.message ?: "Error desconocido al agendar")
-                    }
+                if (result.isSuccess) {
+                    _bookState.update { it.copy(isSubmitting = false) }
+                    _bookingResult.emit(BookingResult.Success)
+                } else {
+                    _bookState.update { it.copy(isSubmitting = false, errorMsg = result.exceptionOrNull()?.message ?: "Error desconocido al agendar") }
                 }
             } catch (e: Exception) {
                 _bookState.update { it.copy(isSubmitting = false, errorMsg = "Error inesperado: ${e.message}") }
@@ -178,7 +193,7 @@ class AppointmentViewModel(
         }
     }
 
-    fun clearBookingResult() {
+    fun clearBookingState() {
         _bookState.update { BookAppointmentUiState() }
     }
 

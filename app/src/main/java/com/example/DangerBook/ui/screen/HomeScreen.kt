@@ -139,7 +139,7 @@ fun HomeScreen(
 
             // Info adicional
             Text(
-                text = "• Horario: Lun-Sáb 9:00 - 20:00\n• Ubicación: Centro de la ciudad\n• Profesionales certificados",
+                text = "• Horario: Lun-Sáb 9:00 - 20:00\n• Ubicación: Av. Las torres 152 (Quilicura)\n• Profesionales certificados",
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)

@@ -1,5 +1,6 @@
 package com.example.DangerBook.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,11 +14,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.DangerBook.ui.viewmodel.AppointmentViewModel
+import com.example.DangerBook.ui.viewmodel.BookingResult
 import com.example.DangerBook.ui.viewmodel.ServicesViewModel
+import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -29,12 +33,24 @@ fun BookAppointmentScreen(
 ) {
     val bookState by appointmentVm.bookState.collectAsStateWithLifecycle()
     val servicesState by servicesVm.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    // Navegar si la cita se creó exitosamente
-    LaunchedEffect(bookState.success) {
-        if (bookState.success) {
-            appointmentVm.clearBookingResult()
-            onAppointmentBooked()
+    // Escuchar eventos de resultado únicos del ViewModel
+    LaunchedEffect(Unit) {
+        appointmentVm.bookingResult.collectLatest { result ->
+            when (result) {
+                is BookingResult.Success -> {
+                    Toast.makeText(context, "Cita confirmada exitosamente", Toast.LENGTH_SHORT).show()
+                    onAppointmentBooked()
+                }
+            }
+        }
+    }
+
+    // Limpiar el estado del formulario cuando se abandona la pantalla
+    DisposableEffect(Unit) {
+        onDispose {
+            appointmentVm.clearBookingState()
         }
     }
 

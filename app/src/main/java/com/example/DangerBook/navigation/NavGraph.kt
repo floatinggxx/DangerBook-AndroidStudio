@@ -182,8 +182,11 @@ fun AppNavGraph(
                             appointmentVm = appointmentViewModel,
                             servicesVm = servicesViewModel,
                             onAppointmentBooked = {
-                                navController.navigate(Route.MyAppointments.path) {
-                                    popUpTo(Route.BookAppointment.path) { inclusive = true }
+                                navController.navigate(Route.Home.path) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
                                 }
                             }
                         )
