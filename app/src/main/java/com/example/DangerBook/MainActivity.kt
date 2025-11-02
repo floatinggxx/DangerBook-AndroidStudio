@@ -82,7 +82,7 @@ fun AppRoot() {
     // Inicializar repositorios
     val userRepository = UserRepository(userDao)
     val serviceRepository = ServiceRepository(serviceDao, barberDao)
-    val appointmentRepository = AppointmentRepository(appointmentDao, context)
+    val appointmentRepository = AppointmentRepository(appointmentDao, userDao, serviceDao, barberDao)
 
     // Estado de autenticación desde DataStore
     val currentUserId by userPrefs.userId.collectAsStateWithLifecycle(null)
@@ -115,11 +115,11 @@ fun AppRoot() {
         factory = ServicesViewModelFactory(serviceRepository)
     )
 
-    // Crear AppointmentViewModel solo si hay usuario logueado
+    // Crear AppointmentViewModel con la nueva factory
     val appointmentViewModel: AppointmentViewModel = viewModel(
         factory = AppointmentViewModelFactory(
-            appointmentRepository,
-            currentUserId ?: -1L
+            repository = appointmentRepository,
+            userPreferences = userPrefs // Le pasamos el gestor de sesión
         )
     )
 

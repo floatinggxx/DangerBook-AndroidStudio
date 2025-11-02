@@ -1,15 +1,19 @@
 package com.example.DangerBook.data.repository
 
-import android.content.Context
 import com.example.DangerBook.data.local.appointment.AppointmentDao
 import com.example.DangerBook.data.local.appointment.AppointmentEntity
+import com.example.DangerBook.data.local.barbero.BarberDao
+import com.example.DangerBook.data.local.service.ServiceDao
+import com.example.DangerBook.data.local.user.UserDao
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 
 // Lógica de negocio de las citas
 class AppointmentRepository(
     private val appointmentDao: AppointmentDao,
-    private val context: Context
+    private val userDao: UserDao,
+    private val serviceDao: ServiceDao,
+    private val barberDao: BarberDao
 ) {
 
     // Crear una nueva cita
@@ -26,6 +30,18 @@ class AppointmentRepository(
             if (dateTime < System.currentTimeMillis()) {
                 return Result.failure(IllegalArgumentException("No puedes agendar citas en el pasado"))
             }
+
+            // --- VALIDACIÓN DE CLAVES EXTERNAS ---
+            if (userDao.getById(userId) == null) {
+                return Result.failure(IllegalArgumentException("El usuario con ID $userId no existe."))
+            }
+            if (serviceDao.getById(serviceId) == null) {
+                return Result.failure(IllegalArgumentException("El servicio con ID $serviceId no existe."))
+            }
+            if (barberId != null && barberDao.getById(barberId) == null) {
+                return Result.failure(IllegalArgumentException("El barbero con ID $barberId no existe."))
+            }
+            // --- FIN DE VALIDACIÓN ---
 
             // Verificar si hay conflictos de horario
             if (barberId != null) {

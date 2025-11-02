@@ -13,6 +13,10 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(user: UserEntity): Long
 
+    // Insertar una lista de usuarios
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(users: List<UserEntity>)
+
     // Actualizar usuario (para foto de perfil, por ejemplo)
     @Update
     suspend fun update(user: UserEntity)

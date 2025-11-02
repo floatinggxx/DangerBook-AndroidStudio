@@ -2,18 +2,20 @@ package com.example.DangerBook.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.DangerBook.data.local.storage.UserPreferences
 import com.example.DangerBook.data.repository.AppointmentRepository
 
-// Factory para crear instancias de AppointmentViewModel con sus dependencias
+// Factory para crear instancias de AppointmentViewModel con sus nuevas dependencias
 class AppointmentViewModelFactory(
     private val repository: AppointmentRepository,
-    private val userId: Long // Usuario actual logueado
+    private val userPreferences: UserPreferences // Ahora recibe el gestor de sesión
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AppointmentViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return AppointmentViewModel(repository, userId) as T
+            // Pasa las nuevas dependencias al ViewModel
+            return AppointmentViewModel(repository, userPreferences) as T
         }
         throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     }
