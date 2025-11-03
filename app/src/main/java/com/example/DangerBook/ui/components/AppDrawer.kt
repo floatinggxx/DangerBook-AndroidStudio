@@ -94,6 +94,7 @@ fun defaultDrawerItems(
 fun authenticatedDrawerItems(
     userName: String,
     userRole: String, // NUEVO: rol del usuario
+    onHome: () -> Unit,
     onServices: () -> Unit,
     onBookAppointment: () -> Unit,
     onMyAppointments: () -> Unit,
@@ -103,6 +104,7 @@ fun authenticatedDrawerItems(
     onLogout: () -> Unit
 ): List<DrawerItem> {
     val commonItems = mutableListOf(
+        DrawerItem("Home", Icons.Filled.Home, onHome),
         DrawerItem("Servicios", Icons.Filled.ContentCut, onServices),
         DrawerItem("Perfil", Icons.Filled.AccountCircle, onProfile)
     )
@@ -110,7 +112,7 @@ fun authenticatedDrawerItems(
     // Ítems específicos según rol
     when (userRole) {
         "admin" -> {
-            commonItems.add(0, DrawerItem("Panel Admin", Icons.Filled.AdminPanelSettings, onAdminDashboard))
+            commonItems.add(1, DrawerItem("Panel Admin", Icons.Filled.AdminPanelSettings, onAdminDashboard))
             commonItems.add(DrawerItem("Gestionar Citas", Icons.Filled.EventNote, onMyAppointments))
         }
         "barber" -> {

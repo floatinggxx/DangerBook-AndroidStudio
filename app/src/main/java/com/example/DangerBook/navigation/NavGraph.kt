@@ -71,6 +71,10 @@ fun AppNavGraph(
                 items = if (isAuthenticated) {
                     authenticatedDrawerItems(
                         userName = currentUserName ?: "Usuario",
+                        onHome = {
+                            scope.launch { drawerState.close() }
+                            goHome()
+                        },
                         onServices = {
                             scope.launch { drawerState.close() }
                             goServices()
