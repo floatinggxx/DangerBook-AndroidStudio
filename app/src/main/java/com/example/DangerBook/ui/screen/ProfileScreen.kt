@@ -6,10 +6,10 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,14 +26,15 @@ import coil.request.ImageRequest
 import com.example.DangerBook.data.local.storage.UserPreferences
 import com.example.DangerBook.ui.utils.CameraHelper
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @Composable
 fun ProfileScreen(
     userId: Long,
     userName: String,
-    userRole: String, // NUEVO: mostrar el rol
+    userRole: String,
     onLogout: () -> Unit,
-    onPhotoUpdated: (String) -> Unit, // NUEVO: callback para actualizar foto
+    onPhotoUpdated: (String) -> Unit,
     onUserNameUpdated: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -48,7 +49,7 @@ fun ProfileScreen(
     // Estados para diálogos
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showEditNameDialog by remember { mutableStateOf(false) }
-    var newUserName by remember(userName) { mutableStateOf(userName) } // FIX: Update state when userName changes
+    var newUserName by remember(userName) { mutableStateOf(userName) }
 
     // Launcher para la cámara
     val takePictureLauncher = rememberLauncherForActivityResult(
@@ -73,10 +74,14 @@ fun ProfileScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            val file = CameraHelper.createTempImageFile(context)
-            val uri = CameraHelper.getImageUriForFile(context, file)
-            pendingCaptureUri = uri
-            takePictureLauncher.launch(uri)
+            try {
+                val file = CameraHelper.createTempImageFile(context)
+                val uri = CameraHelper.getImageUriForFile(context, file)
+                pendingCaptureUri = uri
+                takePictureLauncher.launch(uri)
+            } catch (t: Throwable) { // Capturar cualquier tipo de error
+                Toast.makeText(context, "Error inesperado al iniciar cámara: ${t.message}", Toast.LENGTH_LONG).show()
+            }
         } else {
             Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
         }
@@ -157,6 +162,15 @@ fun ProfileScreen(
 
                     Spacer(Modifier.height(4.dp))
 
+                    // Rol del usuario
+                    Text(
+                        text = userRole.replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    )
+
+                    Spacer(Modifier.height(4.dp))
+
                     // ID del usuario
                     Text(
                         text = "ID: #$userId",
@@ -198,7 +212,7 @@ fun ProfileScreen(
                     contentColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Icon(Icons.Filled.Logout, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("Cerrar Sesión", style = MaterialTheme.typography.titleMedium)
             }
@@ -247,7 +261,7 @@ fun ProfileScreen(
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
-            icon = { Icon(Icons.Filled.Logout, contentDescription = null) },
+            icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null) },
             title = { Text("¿Cerrar sesión?") },
             text = { Text("¿Estás seguro de que deseas cerrar tu sesión?") },
             confirmButton = {

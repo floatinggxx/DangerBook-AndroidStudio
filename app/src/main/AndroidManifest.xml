@@ -33,7 +33,7 @@
         <!-- FileProvider para compartir la Uri temporal donde se guardará la foto -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.uinavegacion.fileprovider"
+            android:authorities="com.example.DangerBook.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.Dangerbook"
+    namespace = "com.example.DangerBook"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.Dangerbook"
+        applicationId = "com.example.DangerBook"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

@@ -14,15 +14,17 @@ object CameraHelper {
     // Crear archivo temporal para guardar la foto en el caché
     fun createTempImageFile(context: Context): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        // Define el directorio de almacenamiento como la subcarpeta 'images' en el caché
         val storageDir = File(context.cacheDir, "images").apply {
-            if (!exists()) mkdirs()
+            if (!exists()) mkdirs() // Crea la carpeta si no existe
         }
+        // Crea el archivo de imagen en esa subcarpeta
         return File(storageDir, "IMG_${timeStamp}.jpg")
     }
 
     // Obtener Uri del archivo usando FileProvider (necesario para Android 7+)
     fun getImageUriForFile(context: Context, file: File): Uri {
-        val authority = "${context.packageName}.fileprovider"
+        val authority = "com.example.DangerBook.fileprovider"
         return FileProvider.getUriForFile(context, authority, file)
     }
 }
