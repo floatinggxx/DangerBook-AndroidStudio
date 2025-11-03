@@ -8,10 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -23,13 +20,7 @@ import com.example.DangerBook.ui.components.AppTopBar
 import com.example.DangerBook.ui.components.AppDrawer
 import com.example.DangerBook.ui.components.authenticatedDrawerItems
 import com.example.DangerBook.ui.components.defaultDrawerItems
-import com.example.DangerBook.ui.screen.HomeScreen
-import com.example.DangerBook.ui.screen.LoginScreenVm
-import com.example.DangerBook.ui.screen.RegisterScreenVm
-import com.example.DangerBook.ui.screen.ServicesScreen
-import com.example.DangerBook.ui.screen.BookAppointmentScreen
-import com.example.DangerBook.ui.screen.MyAppointmentsScreen
-import com.example.DangerBook.ui.screen.ProfileScreen
+import com.example.DangerBook.ui.screen.* 
 import com.example.DangerBook.ui.viewmodel.AdminViewModel
 import com.example.DangerBook.ui.viewmodel.AuthViewModel
 import com.example.DangerBook.ui.viewmodel.ServicesViewModel
@@ -62,6 +53,7 @@ fun AppNavGraph(
     val goMyAppointments: () -> Unit = { navController.navigate(Route.MyAppointments.path) }
     val goProfile: () -> Unit = { navController.navigate(Route.Profile.path) }
     val goAdminDashboard: () -> Unit = { navController.navigate(Route.AdminDashboard.path) }
+    val goBarberAppointments: () -> Unit = { navController.navigate(Route.BarberAppointments.path) }
 
     val handleLogout: () -> Unit = {
         scope.launch { drawerState.close() }
@@ -97,7 +89,10 @@ fun AppNavGraph(
                         },
                         onLogout = handleLogout,
                         userRole = currentUserRole ?: "",
-                        onBarberAppointments = {},
+                        onBarberAppointments = {
+                            scope.launch { drawerState.close() }
+                            goBarberAppointments()
+                        },
                         onAdminDashboard = {
                             scope.launch { drawerState.close() }
                             goAdminDashboard()
@@ -252,6 +247,34 @@ fun AppNavGraph(
                                 onManageUsers = {},
                                 onManageServices = {},
                                 onViewReports = {}
+                            )
+                        }
+                    }
+                }
+
+                composable(Route.BarberAppointments.path) {
+                    if (currentUserRole != "barber" || currentUserId == null) {
+                        navController.navigate(Route.Home.path) { popUpTo(Route.Home.path) { inclusive = true } }
+                    } else {
+                        LaunchedEffect(Unit) {
+                            appointmentViewModel.loadBarberAppointments(currentUserId)
+                        }
+
+                        val barberState by appointmentViewModel.myAppointmentsState.collectAsState()
+
+                        if (barberState.isLoading) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                            }
+                        } else {
+                            BarberAppointmentsScreen(
+                                appointments = barberState.allAppointments,
+                                onConfirmAppointment = { appointmentId ->
+                                    appointmentViewModel.confirmAppointment(appointmentId)
+                                },
+                                onCompleteAppointment = { appointmentId ->
+                                    appointmentViewModel.completeAppointment(appointmentId)
+                                }
                             )
                         }
                     }
