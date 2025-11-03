@@ -70,6 +70,15 @@ class UserRepository(
         }
     }
 
+    suspend fun updateUserName(userId: Long, newName: String): Result<Unit> {
+        return try {
+            userDao.updateUserName(userId, newName)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // Obtener todos los barberos (Flow para observar cambios)
     fun getAllBarbers(): Flow<List<UserEntity>> {
         return userDao.getAllBarbers()

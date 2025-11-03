@@ -48,4 +48,7 @@ interface UserDao {
     // Actualizar foto de perfil
     @Query("UPDATE users SET photoUri = :photoUri WHERE id = :userId")
     suspend fun updatePhoto(userId: Long, photoUri: String?)
+
+    @Query("UPDATE users SET name = :newName WHERE id = :userId")
+    suspend fun updateUserName(userId: Long, newName: String)
 }

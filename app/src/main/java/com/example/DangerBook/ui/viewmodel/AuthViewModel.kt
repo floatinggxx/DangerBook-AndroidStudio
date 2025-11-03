@@ -185,4 +185,17 @@ class AuthViewModel(
     fun clearRegisterResult() {
         _register.update { it.copy(success = false, errorMsg = null) }
     }
+
+    fun updateUserName(userId: Long, newName: String) {
+        viewModelScope.launch {
+            repository.updateUserName(userId, newName)
+            // Opcional: actualizar el estado si es necesario
+            val currentUser = _login.value.loggedUser
+            if (currentUser != null && currentUser.id == userId) {
+                _login.update {
+                    it.copy(loggedUser = currentUser.copy(name = newName))
+                }
+            }
+        }
+    }
 }

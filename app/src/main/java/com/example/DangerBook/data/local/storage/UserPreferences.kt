@@ -62,6 +62,12 @@ class UserPreferences(private val context: Context) {
         }
     }
 
+    suspend fun updateUserName(newName: String) {
+        context.dataStore.edit { preferences ->
+            preferences[userNameKey] = newName
+        }
+    }
+
     // Cerrar sesión (limpiar todo)
     suspend fun clearSession() {
         context.dataStore.edit { prefs ->

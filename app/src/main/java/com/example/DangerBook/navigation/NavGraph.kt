@@ -36,7 +36,8 @@ fun AppNavGraph(
     currentUserName: String?,
     currentUserRole: String?,
     onLogout: () -> Unit,
-    onPhotoUpdated: (String) -> Unit
+    onPhotoUpdated: (String) -> Unit,
+    onUserNameUpdated: (String) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -213,7 +214,8 @@ fun AppNavGraph(
                             userName = currentUserName ?: "Usuario",
                             onLogout = handleLogout,
                             onPhotoUpdated = onPhotoUpdated,
-                            userRole = currentUserRole ?: ""
+                            userRole = currentUserRole ?: "",
+                            onUserNameUpdated = onUserNameUpdated
                         )
                     }
                 }

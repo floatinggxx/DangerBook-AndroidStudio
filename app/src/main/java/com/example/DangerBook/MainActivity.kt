@@ -135,6 +135,17 @@ fun AppRoot() {
         scope.launch {
             currentUserId?.let { userId ->
                 userRepository.updateUserPhoto(userId, photoUri)
+                userPrefs.updateUserPhoto(photoUri)
+            }
+        }
+    }
+
+    // Actualizar nombre de usuario
+    val handleUserNameUpdated: (String) -> Unit = { newName ->
+        scope.launch {
+            currentUserId?.let { userId ->
+                authViewModel.updateUserName(userId, newName)
+                userPrefs.updateUserName(newName)
             }
         }
     }
@@ -149,7 +160,8 @@ fun AppRoot() {
             currentUserName = currentUserName,
             currentUserRole = currentUserRole,
             onLogout = handleLogout,
-            onPhotoUpdated = handlePhotoUpdated
+            onPhotoUpdated = handlePhotoUpdated,
+            onUserNameUpdated = handleUserNameUpdated
         )
     }
 }

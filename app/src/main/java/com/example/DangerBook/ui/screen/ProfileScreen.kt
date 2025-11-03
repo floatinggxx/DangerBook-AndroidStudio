@@ -33,7 +33,8 @@ fun ProfileScreen(
     userName: String,
     userRole: String, // NUEVO: mostrar el rol
     onLogout: () -> Unit,
-    onPhotoUpdated: (String) -> Unit // NUEVO: callback para actualizar foto
+    onPhotoUpdated: (String) -> Unit, // NUEVO: callback para actualizar foto
+    onUserNameUpdated: (String) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -46,7 +47,8 @@ fun ProfileScreen(
 
     // Estados para diálogos
     var showLogoutDialog by remember { mutableStateOf(false) }
-    var showPhotoDialog by remember { mutableStateOf(false) }
+    var showEditNameDialog by remember { mutableStateOf(false) }
+    var newUserName by remember(userName) { mutableStateOf(userName) } // FIX: Update state when userName changes
 
     // Launcher para la cámara
     val takePictureLauncher = rememberLauncherForActivityResult(
@@ -122,12 +124,24 @@ fun ProfileScreen(
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Filled.Person,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                            if (photoUriString != null) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(photoUriString)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = "Foto de perfil",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.clip(CircleShape)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.Person,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
 
@@ -164,21 +178,14 @@ fun ProfileScreen(
                 icon = Icons.Filled.AccountCircle,
                 title = "Datos personales",
                 subtitle = "Actualiza tu información",
-                onClick = { /* TODO: Implementar edición de perfil */ }
+                onClick = { showEditNameDialog = true }
             )
 
             ProfileOption(
-                icon = Icons.Filled.Lock,
-                title = "Cambiar contraseña",
-                subtitle = "Actualiza tu contraseña",
-                onClick = { /* TODO: Implementar cambio de contraseña */ }
-            )
-
-            ProfileOption(
-                icon = Icons.Filled.Notifications,
-                title = "Notificaciones",
-                subtitle = "Gestiona tus notificaciones",
-                onClick = { /* TODO: Implementar configuración de notificaciones */ }
+                icon = Icons.Filled.PhotoCamera,
+                title = "Cambiar foto de perfil",
+                subtitle = "Usa la cámara para una nueva foto",
+                onClick = openCamera
             )
 
             Spacer(Modifier.weight(1f))
@@ -204,6 +211,36 @@ fun ProfileScreen(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }
+    }
+
+    // Diálogo para editar nombre
+    if (showEditNameDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditNameDialog = false },
+            title = { Text("Actualizar nombre") },
+            text = {
+                OutlinedTextField(
+                    value = newUserName,
+                    onValueChange = { newUserName = it },
+                    label = { Text("Nuevo nombre de usuario") }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onUserNameUpdated(newUserName)
+                        showEditNameDialog = false
+                    }
+                ) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditNameDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 
     // Diálogo de confirmación de logout
