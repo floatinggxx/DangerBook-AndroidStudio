@@ -1,4 +1,5 @@
 package com.example.DangerBook.data.local.database
+
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
@@ -16,6 +17,7 @@ import com.example.DangerBook.data.local.user.UserEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 @Database(
     entities = [
@@ -106,6 +108,40 @@ abstract class AppDatabase : RoomDatabase() {
                         BarberEntity(name = "Andrés Master", specialty = "Afeitado tradicional", rating = 5.0, isAvailable = true)
                     )
                     barberDao.insertAll(barbers)
+                }
+
+                // Precargar citas si la tabla está vacía
+                if (database.appointmentDao().count() == 0) {
+                    val appointments = listOf(
+                        // Cita para mañana
+                        AppointmentEntity(
+                            userId = 5, // Jose Pérez
+                            barberId = 1, // Carlos Danger
+                            serviceId = 1, // Corte Clásico
+                            dateTime = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1); set(Calendar.HOUR_OF_DAY, 10); set(Calendar.MINUTE, 0) }.timeInMillis,
+                            durationMinutes = 30,
+                            status = "confirmed"
+                        ),
+                        // Cita para pasado mañana
+                        AppointmentEntity(
+                            userId = 6, // María González
+                            barberId = 2, // Miguel Estilo
+                            serviceId = 4, // Corte + Barba
+                            dateTime = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 2); set(Calendar.HOUR_OF_DAY, 12); set(Calendar.MINUTE, 30) }.timeInMillis,
+                            durationMinutes = 60,
+                            status = "pending"
+                        ),
+                        // Cita pasada para el historial
+                         AppointmentEntity(
+                            userId = 5, // Jose Pérez
+                            barberId = 3, // Andrés Master
+                            serviceId = 5, // Afeitado Tradicional
+                            dateTime = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -5); set(Calendar.HOUR_OF_DAY, 16); set(Calendar.MINUTE, 0) }.timeInMillis,
+                            durationMinutes = 40,
+                            status = "completed"
+                        )
+                    )
+                    database.appointmentDao().insertAll(appointments)
                 }
             }
         }

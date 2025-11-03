@@ -27,6 +27,8 @@ import com.example.DangerBook.ui.viewmodel.ServicesViewModelFactory
 import com.example.DangerBook.ui.viewmodel.AppointmentViewModel
 import com.example.DangerBook.ui.viewmodel.AppointmentViewModelFactory
 import com.example.DangerBook.ui.theme.UINavegacionTheme
+import com.example.DangerBook.ui.viewmodel.AdminViewModel
+import com.example.DangerBook.ui.viewmodel.AdminViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -94,6 +96,10 @@ fun AppRoot() {
         factory = AuthViewModelFactory(userRepository)
     )
 
+    val adminViewModel: AdminViewModel = viewModel(
+        factory = AdminViewModelFactory(userRepository, appointmentRepository)
+    )
+
     // Observar el estado de login para guardar sesión en DataStore
     LaunchedEffect(authViewModel) {
         authViewModel.login.collectLatest { loginState ->
@@ -156,6 +162,7 @@ fun AppRoot() {
             authViewModel = authViewModel,
             servicesViewModel = servicesViewModel,
             appointmentViewModel = appointmentViewModel,
+            adminViewModel = adminViewModel, // Pasamos el nuevo ViewModel
             currentUserId = currentUserId,
             currentUserName = currentUserName,
             currentUserRole = currentUserRole,

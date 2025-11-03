@@ -120,6 +120,9 @@ class AppointmentRepository(
     fun getBarberAppointments(barberId: Long): Flow<List<AppointmentEntity>> {
         return appointmentDao.getByBarberId(barberId)
     }
+    suspend fun getTotalAppointmentsCount(): Int {
+        return appointmentDao.count()
+    }
 
     // Verificar horarios disponibles para un día específico
     suspend fun getAvailableTimeSlotsForDay(

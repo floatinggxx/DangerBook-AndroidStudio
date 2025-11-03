@@ -36,7 +36,7 @@ interface AppointmentDao {
         LEFT JOIN barbers AS b ON a.barberId = b.id
         WHERE a.userId = :userId
         ORDER BY a.dateTime DESC
-    """)
+    """ )
     fun getAppointmentDetailsForUser(userId: Long): Flow<List<AppointmentDetails>>
 
 
@@ -45,6 +45,9 @@ interface AppointmentDao {
     // Insertar una nueva cita
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(appointment: AppointmentEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(appointments: List<AppointmentEntity>)
 
     // Actualizar una cita existente
     @Update
@@ -60,7 +63,7 @@ interface AppointmentDao {
         WHERE userId = :userId 
         AND status IN ('pending', 'confirmed')
         ORDER BY dateTime ASC
-    """)
+    """ )
     fun getUpcomingByUserId(userId: Long): Flow<List<AppointmentEntity>>
 
     // Obtener una cita por ID
@@ -73,7 +76,7 @@ interface AppointmentDao {
         WHERE barberId = :barberId 
         AND dateTime = :dateTime 
         AND status IN ('pending', 'confirmed')
-    """)
+    """ )
     suspend fun countConflictingAppointments(barberId: Long, dateTime: Long): Int
 
     // Obtener todas las citas de un día específico para un barbero
@@ -84,7 +87,7 @@ interface AppointmentDao {
         AND dateTime < :endOfDay
         AND status IN ('pending', 'confirmed')
         ORDER BY dateTime ASC
-    """)
+    """ )
     suspend fun getBarberAppointmentsForDay(barberId: Long, startOfDay: Long, endOfDay: Long): List<AppointmentEntity>
 
     // Cancelar una cita (actualiza el estado)

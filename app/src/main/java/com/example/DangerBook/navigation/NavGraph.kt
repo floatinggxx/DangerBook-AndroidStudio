@@ -1,15 +1,23 @@
 package com.example.DangerBook.navigation
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.DangerBook.ui.screen.AdminDashboardScreen
 import kotlinx.coroutines.launch
 import com.example.DangerBook.ui.components.AppTopBar
 import com.example.DangerBook.ui.components.AppDrawer
@@ -22,6 +30,7 @@ import com.example.DangerBook.ui.screen.ServicesScreen
 import com.example.DangerBook.ui.screen.BookAppointmentScreen
 import com.example.DangerBook.ui.screen.MyAppointmentsScreen
 import com.example.DangerBook.ui.screen.ProfileScreen
+import com.example.DangerBook.ui.viewmodel.AdminViewModel
 import com.example.DangerBook.ui.viewmodel.AuthViewModel
 import com.example.DangerBook.ui.viewmodel.ServicesViewModel
 import com.example.DangerBook.ui.viewmodel.AppointmentViewModel
@@ -32,6 +41,7 @@ fun AppNavGraph(
     authViewModel: AuthViewModel,
     servicesViewModel: ServicesViewModel,
     appointmentViewModel: AppointmentViewModel,
+    adminViewModel: AdminViewModel,
     currentUserId: Long?,
     currentUserName: String?,
     currentUserRole: String?,
@@ -51,6 +61,7 @@ fun AppNavGraph(
     val goBookAppointment: () -> Unit = { navController.navigate(Route.BookAppointment.path) }
     val goMyAppointments: () -> Unit = { navController.navigate(Route.MyAppointments.path) }
     val goProfile: () -> Unit = { navController.navigate(Route.Profile.path) }
+    val goAdminDashboard: () -> Unit = { navController.navigate(Route.AdminDashboard.path) }
 
     val handleLogout: () -> Unit = {
         scope.launch { drawerState.close() }
@@ -87,7 +98,10 @@ fun AppNavGraph(
                         onLogout = handleLogout,
                         userRole = currentUserRole ?: "",
                         onBarberAppointments = {},
-                        onAdminDashboard = {}
+                        onAdminDashboard = {
+                            scope.launch { drawerState.close() }
+                            goAdminDashboard()
+                        }
                     )
                 } else {
                     defaultDrawerItems(
@@ -217,6 +231,29 @@ fun AppNavGraph(
                             userRole = currentUserRole ?: "",
                             onUserNameUpdated = onUserNameUpdated
                         )
+                    }
+                }
+
+                composable(Route.AdminDashboard.path) {
+                    if (currentUserRole != "admin") {
+                        navController.navigate(Route.Home.path) { popUpTo(Route.Home.path) { inclusive = true } }
+                    } else {
+                        val adminState by adminViewModel.uiState.collectAsState()
+
+                        if (adminState.isLoading) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                            }
+                        } else {
+                            AdminDashboardScreen(
+                                totalAppointments = adminState.totalAppointments,
+                                totalUsers = adminState.totalUsers,
+                                totalBarbers = adminState.totalBarbers,
+                                onManageUsers = {},
+                                onManageServices = {},
+                                onViewReports = {}
+                            )
+                        }
                     }
                 }
             }
