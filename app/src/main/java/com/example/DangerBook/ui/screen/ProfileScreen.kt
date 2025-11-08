@@ -7,6 +7,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -32,10 +34,15 @@ import java.util.Locale
 fun ProfileScreen(
     userId: Long,
     userName: String,
+    userEmail: String,
+    userPhone: String,
     userRole: String,
     onLogout: () -> Unit,
     onPhotoUpdated: (String) -> Unit,
-    onUserNameUpdated: (String) -> Unit
+    onUserNameUpdated: (String) -> Unit,
+    onUserEmailUpdated: (String) -> Unit,
+    onUserPhoneUpdated: (String) -> Unit,
+    onUserPasswordUpdated: (String) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -49,7 +56,15 @@ fun ProfileScreen(
     // Estados para diálogos
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showEditNameDialog by remember { mutableStateOf(false) }
+    var showEditEmailDialog by remember { mutableStateOf(false) }
+    var showEditPhoneDialog by remember { mutableStateOf(false) }
+    var showEditPasswordDialog by remember { mutableStateOf(false) }
+
     var newUserName by remember(userName) { mutableStateOf(userName) }
+    var newUserEmail by remember(userEmail) { mutableStateOf(userEmail) }
+    var newUserPhone by remember(userPhone) { mutableStateOf(userPhone) }
+    var newUserPassword by remember { mutableStateOf("") }
+
 
     // Launcher para la cámara
     val takePictureLauncher = rememberLauncherForActivityResult(
@@ -100,7 +115,8 @@ fun ProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Header
@@ -119,7 +135,7 @@ fun ProfileScreen(
                 )
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
+                    modifier = Modifier.fillMaxWidth().padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Avatar (ícono circular)
@@ -168,15 +184,6 @@ fun ProfileScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
-
-                    Spacer(Modifier.height(4.dp))
-
-                    // ID del usuario
-                    Text(
-                        text = "ID: #$userId",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
                 }
             }
 
@@ -190,9 +197,30 @@ fun ProfileScreen(
             // Opciones del perfil
             ProfileOption(
                 icon = Icons.Filled.AccountCircle,
-                title = "Datos personales",
-                subtitle = "Actualiza tu información",
+                title = "Cambiar nombre",
+                subtitle = "Actualiza tu nombre de usuario",
                 onClick = { showEditNameDialog = true }
+            )
+
+            ProfileOption(
+                icon = Icons.Filled.Email,
+                title = "Cambiar correo",
+                subtitle = "Actualiza tu correo electrónico",
+                onClick = { showEditEmailDialog = true }
+            )
+
+            ProfileOption(
+                icon = Icons.Filled.Phone,
+                title = "Cambiar teléfono",
+                subtitle = "Actualiza tu número de teléfono",
+                onClick = { showEditPhoneDialog = true }
+            )
+
+            ProfileOption(
+                icon = Icons.Filled.Lock,
+                title = "Cambiar contraseña",
+                subtitle = "Actualiza tu contraseña",
+                onClick = { showEditPasswordDialog = true }
             )
 
             ProfileOption(
@@ -251,6 +279,96 @@ fun ProfileScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showEditNameDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    // Diálogo para editar email
+    if (showEditEmailDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditEmailDialog = false },
+            title = { Text("Actualizar correo") },
+            text = {
+                OutlinedTextField(
+                    value = newUserEmail,
+                    onValueChange = { newUserEmail = it },
+                    label = { Text("Nuevo correo electrónico") }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onUserEmailUpdated(newUserEmail)
+                        showEditEmailDialog = false
+                    }
+                ) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditEmailDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    // Diálogo para editar teléfono
+    if (showEditPhoneDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditPhoneDialog = false },
+            title = { Text("Actualizar teléfono") },
+            text = {
+                OutlinedTextField(
+                    value = newUserPhone,
+                    onValueChange = { newUserPhone = it },
+                    label = { Text("Nuevo número de teléfono") }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onUserPhoneUpdated(newUserPhone)
+                        showEditPhoneDialog = false
+                    }
+                ) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditPhoneDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    // Diálogo para editar contraseña
+    if (showEditPasswordDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditPasswordDialog = false },
+            title = { Text("Actualizar contraseña") },
+            text = {
+                OutlinedTextField(
+                    value = newUserPassword,
+                    onValueChange = { newUserPassword = it },
+                    label = { Text("Nueva contraseña") }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onUserPasswordUpdated(newUserPassword)
+                        showEditPasswordDialog = false
+                    }
+                ) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditPasswordDialog = false }) {
                     Text("Cancelar")
                 }
             }

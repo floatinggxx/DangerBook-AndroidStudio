@@ -79,6 +79,33 @@ class UserRepository(
         }
     }
 
+    suspend fun updateUserEmail(userId: Long, newEmail: String): Result<Unit> {
+        return try {
+            userDao.updateUserEmail(userId, newEmail)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun updateUserPhone(userId: Long, newPhone: String): Result<Unit> {
+        return try {
+            userDao.updateUserPhone(userId, newPhone)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun updateUserPassword(userId: Long, newPass: String): Result<Unit> {
+        return try {
+            userDao.updateUserPassword(userId, newPass)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // Obtener todos los barberos (Flow para observar cambios)
     fun getAllBarbers(): Flow<List<UserEntity>> {
         return userDao.getAllBarbers()

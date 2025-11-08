@@ -110,6 +110,10 @@ class AuthViewModel(
         _login.update { it.copy(success = false, errorMsg = null) }
     }
 
+    fun clearLoginForm() {
+        _login.value = LoginUiState()
+    }
+
     // ========== REGISTRO ==========
 
     fun onNameChange(value: String) {
@@ -186,16 +190,49 @@ class AuthViewModel(
         _register.update { it.copy(success = false, errorMsg = null) }
     }
 
+    fun clearRegisterForm() {
+        _register.value = RegisterUiState()
+    }
+
     fun updateUserName(userId: Long, newName: String) {
         viewModelScope.launch {
             repository.updateUserName(userId, newName)
-            // Opcional: actualizar el estado si es necesario
             val currentUser = _login.value.loggedUser
             if (currentUser != null && currentUser.id == userId) {
                 _login.update {
                     it.copy(loggedUser = currentUser.copy(name = newName))
                 }
             }
+        }
+    }
+
+    fun updateUserEmail(userId: Long, newEmail: String) {
+        viewModelScope.launch {
+            repository.updateUserEmail(userId, newEmail)
+            val currentUser = _login.value.loggedUser
+            if (currentUser != null && currentUser.id == userId) {
+                _login.update {
+                    it.copy(loggedUser = currentUser.copy(email = newEmail))
+                }
+            }
+        }
+    }
+
+    fun updateUserPhone(userId: Long, newPhone: String) {
+        viewModelScope.launch {
+            repository.updateUserPhone(userId, newPhone)
+            val currentUser = _login.value.loggedUser
+            if (currentUser != null && currentUser.id == userId) {
+                _login.update {
+                    it.copy(loggedUser = currentUser.copy(phone = newPhone))
+                }
+            }
+        }
+    }
+
+    fun updateUserPassword(userId: Long, newPass: String) {
+        viewModelScope.launch {
+            repository.updateUserPassword(userId, newPass)
         }
     }
 }

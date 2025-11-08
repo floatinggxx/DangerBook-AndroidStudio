@@ -19,6 +19,7 @@ class UserPreferences(private val context: Context) {
     private val userIdKey = longPreferencesKey("user_id")
     private val userNameKey = stringPreferencesKey("user_name")
     private val userEmailKey = stringPreferencesKey("user_email")
+    private val userPhoneKey = stringPreferencesKey("user_phone")
     private val userRoleKey = stringPreferencesKey("user_role")
     private val userPhotoKey = stringPreferencesKey("user_photo")
 
@@ -29,6 +30,7 @@ class UserPreferences(private val context: Context) {
         userId: Long,
         userName: String,
         userEmail: String,
+        userPhone: String,
         userRole: String,
         userPhoto: String?
     ) {
@@ -37,6 +39,7 @@ class UserPreferences(private val context: Context) {
             prefs[userIdKey] = userId
             prefs[userNameKey] = userName
             prefs[userEmailKey] = userEmail
+            prefs[userPhoneKey] = userPhone
             prefs[userRoleKey] = userRole
             if (userPhoto != null) {
                 prefs[userPhotoKey] = userPhoto
@@ -65,6 +68,18 @@ class UserPreferences(private val context: Context) {
     suspend fun updateUserName(newName: String) {
         context.dataStore.edit { preferences ->
             preferences[userNameKey] = newName
+        }
+    }
+
+    suspend fun updateUserEmail(newEmail: String) {
+        context.dataStore.edit { preferences ->
+            preferences[userEmailKey] = newEmail
+        }
+    }
+
+    suspend fun updateUserPhone(newPhone: String) {
+        context.dataStore.edit { preferences ->
+            preferences[userPhoneKey] = newPhone
         }
     }
 
@@ -99,6 +114,12 @@ class UserPreferences(private val context: Context) {
     val userEmail: Flow<String?> = context.dataStore.data
         .map { prefs ->
             prefs[userEmailKey]
+        }
+
+    // Teléfono del usuario
+    val userPhone: Flow<String?> = context.dataStore.data
+        .map { prefs ->
+            prefs[userPhoneKey]
         }
 
     // Rol del usuario

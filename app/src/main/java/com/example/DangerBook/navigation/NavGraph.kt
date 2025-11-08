@@ -35,10 +35,15 @@ fun AppNavGraph(
     adminViewModel: AdminViewModel,
     currentUserId: Long?,
     currentUserName: String?,
+    currentUserEmail: String?,
+    currentUserPhone: String?,
     currentUserRole: String?,
     onLogout: () -> Unit,
     onPhotoUpdated: (String) -> Unit,
-    onUserNameUpdated: (String) -> Unit
+    onUserNameUpdated: (String) -> Unit,
+    onUserEmailUpdated: (String) -> Unit,
+    onUserPhoneUpdated: (String) -> Unit,
+    onUserPasswordUpdated: (String) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -156,6 +161,11 @@ fun AppNavGraph(
                 }
 
                 composable(Route.Login.path) {
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            authViewModel.clearLoginForm()
+                        }
+                    }
                     LoginScreenVm(
                         vm = authViewModel,
                         onLoginOkNavigateHome = {
@@ -168,6 +178,11 @@ fun AppNavGraph(
                 }
 
                 composable(Route.Register.path) {
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            authViewModel.clearRegisterForm()
+                        }
+                    }
                     RegisterScreenVm(
                         vm = authViewModel,
                         onRegisteredNavigateLogin = goLogin,
@@ -225,18 +240,22 @@ fun AppNavGraph(
                         ProfileScreen(
                             userId = currentUserId!!,
                             userName = currentUserName ?: "Usuario",
+                            userEmail = currentUserEmail ?: "",
+                            userPhone = currentUserPhone ?: "",
+                            userRole = currentUserRole ?: "",
                             onLogout = handleLogout,
                             onPhotoUpdated = onPhotoUpdated,
-                            userRole = currentUserRole ?: "",
-                            onUserNameUpdated = onUserNameUpdated
+                            onUserNameUpdated = onUserNameUpdated,
+                            onUserEmailUpdated = onUserEmailUpdated,
+                            onUserPhoneUpdated = onUserPhoneUpdated,
+                            onUserPasswordUpdated = onUserPasswordUpdated
                         )
                     }
                 }
 
                 composable(Route.AdminDashboard.path) {
                     if (currentUserRole != "admin") {
-                        navController.navigate(Route.Home.path) { popUpTo(Route.Home.path) { inclusive = true } }
-                    } else {
+                        navController.navigate(Route.Home.path) { popUpTo(Route.Home.path) { inclusive = true } }                    } else {
                         val adminState by adminViewModel.uiState.collectAsState()
 
                         if (adminState.isLoading) {
@@ -258,8 +277,7 @@ fun AppNavGraph(
 
                 composable(Route.BarberAppointments.path) {
                     if (currentUserRole != "barber" || currentUserId == null) {
-                        navController.navigate(Route.Home.path) { popUpTo(Route.Home.path) { inclusive = true } }
-                    } else {
+                        navController.navigate(Route.Home.path) { popUpTo(Route.Home.path) { inclusive = true } }                    } else {
                         LaunchedEffect(Unit) {
                             appointmentViewModel.loadBarberAppointments(currentUserId)
                         }

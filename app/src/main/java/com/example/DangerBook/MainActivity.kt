@@ -89,6 +89,8 @@ fun AppRoot() {
     // Estado de autenticación desde DataStore
     val currentUserId by userPrefs.userId.collectAsStateWithLifecycle(null)
     val currentUserName by userPrefs.userName.collectAsStateWithLifecycle(null)
+    val currentUserEmail by userPrefs.userEmail.collectAsStateWithLifecycle(null)
+    val currentUserPhone by userPrefs.userPhone.collectAsStateWithLifecycle(null)
     val currentUserRole by userPrefs.userRole.collectAsStateWithLifecycle(null)
 
     // Crear AuthViewModel
@@ -109,8 +111,9 @@ fun AppRoot() {
                     userId = user.id,
                     userName = user.name,
                     userEmail = user.email,
+                    userPhone = user.phone,
                     userRole = user.role,
-                    userPhoto = null
+                    userPhoto = user.photoUri
                 )
             }
         }
@@ -156,19 +159,53 @@ fun AppRoot() {
         }
     }
 
+    // Actualizar email de usuario
+    val handleUserEmailUpdated: (String) -> Unit = { newEmail ->
+        scope.launch {
+            currentUserId?.let { userId ->
+                authViewModel.updateUserEmail(userId, newEmail)
+                userPrefs.updateUserEmail(newEmail)
+            }
+        }
+    }
+
+    // Actualizar teléfono de usuario
+    val handleUserPhoneUpdated: (String) -> Unit = { newPhone ->
+        scope.launch {
+            currentUserId?.let { userId ->
+                authViewModel.updateUserPhone(userId, newPhone)
+                userPrefs.updateUserPhone(newPhone)
+            }
+        }
+    }
+
+    // Actualizar contraseña de usuario
+    val handleUserPasswordUpdated: (String) -> Unit = { newPassword ->
+        scope.launch {
+            currentUserId?.let { userId ->
+                authViewModel.updateUserPassword(userId, newPassword)
+            }
+        }
+    }
+
     Surface(color = MaterialTheme.colorScheme.background) {
         AppNavGraph(
             navController = navController,
             authViewModel = authViewModel,
             servicesViewModel = servicesViewModel,
             appointmentViewModel = appointmentViewModel,
-            adminViewModel = adminViewModel, // Pasamos el nuevo ViewModel
+            adminViewModel = adminViewModel, 
             currentUserId = currentUserId,
             currentUserName = currentUserName,
+            currentUserEmail = currentUserEmail,
+            currentUserPhone = currentUserPhone,
             currentUserRole = currentUserRole,
             onLogout = handleLogout,
             onPhotoUpdated = handlePhotoUpdated,
-            onUserNameUpdated = handleUserNameUpdated
+            onUserNameUpdated = handleUserNameUpdated,
+            onUserEmailUpdated = handleUserEmailUpdated,
+            onUserPhoneUpdated = handleUserPhoneUpdated,
+            onUserPasswordUpdated = handleUserPasswordUpdated
         )
     }
 }
