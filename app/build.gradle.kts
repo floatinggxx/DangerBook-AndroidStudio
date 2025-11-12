@@ -85,4 +85,12 @@ dependencies {
 
     // WorkManager para notificaciones programadas
     implementation("androidx.work:work-runtime-ktx:2.10.0")
+
+    //retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    //covertidor de JSON
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    //comunicación con el protocolo y logginng
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.retrofit2:logging-interceptor:4.12.0")
 }
