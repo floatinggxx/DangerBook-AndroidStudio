@@ -2,7 +2,7 @@ package com.example.DangerBook.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.DangerBook.data.repository.UserRepository
+import com.example.DangerBook.data.repository.UsuarioRepository
 import com.example.DangerBook.data.local.user.UserEntity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +44,7 @@ data class RegisterUiState(
 )
 
 class AuthViewModel(
-    private val repository: UserRepository
+    private val repository: UsuarioRepository
 ) : ViewModel() {
 
     // Flujos de estado

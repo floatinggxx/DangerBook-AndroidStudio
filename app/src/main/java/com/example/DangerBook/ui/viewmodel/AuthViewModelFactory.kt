@@ -2,11 +2,11 @@ package com.example.DangerBook.ui.viewmodel
 
 import androidx.lifecycle.ViewModel                              // Tipo base ViewModel
 import androidx.lifecycle.ViewModelProvider                      // Factory de ViewModels
-import com.example.DangerBook.data.repository.UserRepository   // Repositorio a inyectar
+import com.example.DangerBook.data.repository.UsuarioRepository   // Repositorio a inyectar
 
-// Factory simple para crear AuthViewModel con su UserRepository.
+// Factory simple para crear AuthViewModel con su UsuarioRepository.
 class AuthViewModelFactory(
-    private val repository: UserRepository                       // Dependencia que inyectaremos
+    private val repository: UsuarioRepository                       // Dependencia que inyectaremos
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")                                   // Evitar warning de cast genérico

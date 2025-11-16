@@ -11,6 +11,7 @@ import androidx.compose.runtime.*                             // remember, Compo
 import androidx.compose.ui.Alignment                          // Alineaciones
 import androidx.compose.ui.Modifier                           // Modificador
 import androidx.compose.ui.text.input.*                       // KeyboardOptions/Types/Transformations
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp                            // DPs
 import androidx.lifecycle.compose.collectAsStateWithLifecycle // Observa StateFlow
 import com.example.DangerBook.ui.viewmodel.AuthViewModel         // ViewModel
@@ -76,15 +77,14 @@ private fun RegisterScreen(
     onNameChange: (String) -> Unit,                          // Handler nombre
     onEmailChange: (String) -> Unit,                         // Handler email
     onPhoneChange: (String) -> Unit,                         // Handler teléfono
-    onPassChange: (String) -> Unit,                          // Handler password
+    onPassChange: (String) -> Unit,                          // Handler confirmación
     onConfirmChange: (String) -> Unit,                       // Handler confirmación
     onSubmit: () -> Unit,                                    // Acción Registrar
     onGoLogin: () -> Unit,
     allowRoleSelection: Boolean,
     role: String
 ) {
-    val bg = MaterialTheme.colorScheme.tertiaryContainer // Fondo único
-    //4 Anexamos las variables para mostrar y ocultar el password
+    val bg = MaterialTheme.colorScheme.secondaryContainer // Change background color
     var showPass by remember { mutableStateOf(false) }        // Mostrar/ocultar password
     var showConfirm by remember { mutableStateOf(false) }     // Mostrar/ocultar confirm
 
@@ -92,23 +92,33 @@ private fun RegisterScreen(
         modifier = Modifier
             .fillMaxSize() // Ocupa todo
             .background(bg) // Fondo
-            .padding(16.dp), // Margen
+            .padding(24.dp), // Aumentar padding
         contentAlignment = Alignment.Center // Centro
     ) {
-        // 5 modificamos el parametro de la columna
-        Column(modifier = Modifier.fillMaxWidth()) { // Estructura vertical
+        Column(
+            modifier = Modifier.fillMaxWidth(), // Estructura vertical
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
-                text = "Registro",
-                style = MaterialTheme.typography.headlineSmall // Título
+                text = "Crea tu Cuenta",
+                style = MaterialTheme.typography.headlineMedium, // Título más grande
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
-            Spacer(Modifier.height(12.dp)) // Separación
+            Spacer(Modifier.height(8.dp)) // Separación
 
-            //6 eliminamos los elementos que van de aqui y agregamos los nuevos del formulario
+            Text(
+                text = "Completa tus datos para empezar.",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+            Spacer(Modifier.height(24.dp))
+
             // ---------- NOMBRE (solo letras/espacios) ----------
             OutlinedTextField(
                 value = name,                                // Valor actual
                 onValueChange = onNameChange,                // Notifica VM (filtra y valida)
-                label = { Text("Nombre") },                  // Etiqueta
+                label = { Text("Nombre completo") },                  // Etiqueta
                 singleLine = true,                           // Una línea
                 isError = nameError != null,                 // Marca error
                 keyboardOptions = KeyboardOptions(
@@ -120,13 +130,13 @@ private fun RegisterScreen(
                 Text(nameError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             }
 
-            Spacer(Modifier.height(8.dp))                    // Espacio
+            Spacer(Modifier.height(16.dp))                    // Espacio
 
             // ---------- EMAIL ----------
             OutlinedTextField(
                 value = email,                               // Valor actual
                 onValueChange = onEmailChange,               // Notifica VM (valida)
-                label = { Text("Email") },                   // Etiqueta
+                label = { Text("Correo electrónico") },                   // Etiqueta
                 singleLine = true,                           // Una línea
                 isError = emailError != null,                // Marca error
                 keyboardOptions = KeyboardOptions(
@@ -138,7 +148,7 @@ private fun RegisterScreen(
                 Text(emailError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             }
 
-            Spacer(Modifier.height(8.dp))                    // Espacio
+            Spacer(Modifier.height(16.dp))                    // Espacio
 
             // ---------- TELÉFONO (solo números). El VM ya filtra a dígitos ----------
             OutlinedTextField(
@@ -156,7 +166,7 @@ private fun RegisterScreen(
                 Text(phoneError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             }
 
-            Spacer(Modifier.height(8.dp))                    // Espacio
+            Spacer(Modifier.height(16.dp))                    // Espacio
 
             // ---------- PASSWORD (segura) ----------
             OutlinedTextField(
@@ -180,7 +190,7 @@ private fun RegisterScreen(
                 Text(passError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             }
 
-            Spacer(Modifier.height(8.dp))                    // Espacio
+            Spacer(Modifier.height(16.dp))                    // Espacio
 
             // ---------- CONFIRMAR PASSWORD ----------
             OutlinedTextField(
@@ -204,20 +214,21 @@ private fun RegisterScreen(
                 Text(confirmError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             }
 
-            Spacer(Modifier.height(16.dp))                   // Espacio
+            Spacer(Modifier.height(24.dp))                   // Espacio
 
             // ---------- BOTÓN REGISTRAR ----------
             Button(
                 onClick = onSubmit,                          // Intenta registrar (inserta en la colección)
                 enabled = canSubmit && !isSubmitting,        // Solo si todo es válido y no cargando
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = MaterialTheme.shapes.medium
             ) {
                 if (isSubmitting) {                          // Muestra loading mientras “procesa”
-                    CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
+                    CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                    Spacer(Modifier.width(12.dp))
                     Text("Creando cuenta...")
                 } else {
-                    Text("Registrar")
+                    Text("Registrarme")
                 }
             }
 
@@ -226,11 +237,11 @@ private fun RegisterScreen(
                 Text(errorMsg, color = MaterialTheme.colorScheme.error)
             }
 
-            Spacer(Modifier.height(12.dp))                   // Espacio
+            Spacer(Modifier.height(16.dp))                   // Espacio
 
             // ---------- BOTÓN IR A LOGIN ----------
-            OutlinedButton(onClick = onGoLogin, modifier = Modifier.fillMaxWidth()) {
-                Text("Ir a Login")
+            TextButton(onClick = onGoLogin) {
+                Text("¿Ya tienes una cuenta? Inicia sesión")
             }
         }
     }

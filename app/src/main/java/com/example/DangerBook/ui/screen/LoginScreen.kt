@@ -73,40 +73,40 @@ private fun LoginScreen(
     onSubmit: () -> Unit,                                    // Acción enviar
     onGoRegister: () -> Unit                                 // Acción ir a registro
 ) {
-    val bg = MaterialTheme.colorScheme.secondaryContainer // Fondo distinto para contraste
-    //4 Agregamos la siguiente linea
+    val bg = MaterialTheme.colorScheme.secondaryContainer // Change background color for a fresh look
     var showPass by remember { mutableStateOf(false) }        // Estado local para mostrar/ocultar contraseña
 
     Box(
         modifier = Modifier
             .fillMaxSize() // Ocupa todo
             .background(bg) // Fondo
-            .padding(16.dp), // Margen
+            .padding(24.dp), // Aumentar padding
         contentAlignment = Alignment.Center // Centro
     ) {
         Column(
-            //5 Anexamos el modificador
             modifier = Modifier.fillMaxWidth(),              // Ancho completo
             horizontalAlignment = Alignment.CenterHorizontally // Centrado horizontal
         ) {
             Text(
-                text = "Login",
-                style = MaterialTheme.typography.headlineSmall // Título
+                text = "Bienvenido de Nuevo",
+                style = MaterialTheme.typography.headlineMedium, // Título más grande
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
-            Spacer(Modifier.height(12.dp)) // Separación
+            Spacer(Modifier.height(8.dp)) // Separación
 
             Text(
-                text = "Pantalla de Login (demo). Usa la barra superior, el menú lateral o los botones.",
-                textAlign = TextAlign.Center // Alineación centrada
+                text = "Ingresa tus credenciales para continuar.",
+                textAlign = TextAlign.Center, // Alineación centrada
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
-            Spacer(Modifier.height(20.dp)) // Separación
+            Spacer(Modifier.height(24.dp)) // Separación
 
-            //5 Borramos los elementos anteriores y comenzamos a agregar los elementos dle formulario
-// ---------- EMAIL ----------
+            // ---------- EMAIL ----------
             OutlinedTextField(
                 value = email,                               // Valor actual
                 onValueChange = onEmailChange,               // Notifica VM (valida email)
-                label = { Text("Email") },                   // Etiqueta
+                label = { Text("Correo electrónico") },      // Etiqueta
                 singleLine = true,                           // Una línea
                 isError = emailError != null,                // Marca error si corresponde
                 keyboardOptions = KeyboardOptions(
@@ -118,7 +118,7 @@ private fun LoginScreen(
                 Text(emailError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             }
 
-            Spacer(Modifier.height(8.dp))                    // Espacio
+            Spacer(Modifier.height(16.dp))                    // Espacio
 
             // ---------- PASSWORD (oculta por defecto) ----------
             OutlinedTextField(
@@ -142,18 +142,19 @@ private fun LoginScreen(
                 Text(passError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             }
 
-            Spacer(Modifier.height(16.dp))                   // Espacio
+            Spacer(Modifier.height(24.dp))                   // Espacio
 
             // ---------- BOTÓN ENTRAR ----------
             Button(
                 onClick = onSubmit,                          // Envía login
                 enabled = canSubmit && !isSubmitting,        // Solo si válido y no cargando
-                modifier = Modifier.fillMaxWidth()           // Ancho completo
+                modifier = Modifier.fillMaxWidth().height(50.dp), // Ancho completo y altura
+                shape = MaterialTheme.shapes.medium
             ) {
                 if (isSubmitting) {                          // UI de carga
-                    CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Validando...")
+                    CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                    Spacer(Modifier.width(12.dp))
+                    Text("Iniciando sesión...")
                 } else {
                     Text("Entrar")
                 }
@@ -164,13 +165,12 @@ private fun LoginScreen(
                 Text(errorMsg, color = MaterialTheme.colorScheme.error)
             }
 
-            Spacer(Modifier.height(12.dp))                   // Espacio
+            Spacer(Modifier.height(16.dp))                   // Espacio
 
             // ---------- BOTÓN IR A REGISTRO ----------
-            OutlinedButton(onClick = onGoRegister, modifier = Modifier.fillMaxWidth()) {
-                Text("Crear cuenta")
+            TextButton(onClick = onGoRegister) {
+                Text("¿No tienes una cuenta? Regístrate")
             }
-            //fin modificacion de formulario
         }
     }
 }

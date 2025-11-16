@@ -2,17 +2,17 @@ package com.example.DangerBook.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.DangerBook.data.repository.AppointmentRepository
-import com.example.DangerBook.data.repository.UserRepository
+import com.example.DangerBook.data.repository.CitaRepository
+import com.example.DangerBook.data.repository.UsuarioRepository
 
 class AdminViewModelFactory(
-    private val userRepository: UserRepository,
-    private val appointmentRepository: AppointmentRepository
+    private val usuarioRepository: UsuarioRepository,
+    private val citaRepository: CitaRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AdminViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return AdminViewModel(userRepository, appointmentRepository) as T
+            return AdminViewModel(usuarioRepository, citaRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

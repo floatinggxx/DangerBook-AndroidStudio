@@ -2,8 +2,8 @@ package com.example.DangerBook.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.DangerBook.data.repository.AppointmentRepository
-import com.example.DangerBook.data.repository.UserRepository
+import com.example.DangerBook.data.repository.CitaRepository
+import com.example.DangerBook.data.repository.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,8 +20,8 @@ data class AdminDashboardUiState(
 )
 
 class AdminViewModel(
-    private val userRepository: UserRepository,
-    private val appointmentRepository: AppointmentRepository
+    private val usuarioRepository: UsuarioRepository,
+    private val citaRepository: CitaRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminDashboardUiState())
@@ -35,9 +35,9 @@ class AdminViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                val appointmentCount = appointmentRepository.getTotalAppointmentsCount()
-                val userCount = userRepository.getUsersByRole("user").first().size
-                val barberCount = userRepository.getUsersByRole("barber").first().size
+                val appointmentCount = citaRepository.getTotalAppointmentsCount()
+                val userCount = usuarioRepository.getUsersByRole("user").first().size
+                val barberCount = usuarioRepository.getUsersByRole("barber").first().size
 
                 _uiState.update {
                     it.copy(

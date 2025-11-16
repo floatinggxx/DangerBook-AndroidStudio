@@ -16,16 +16,16 @@ import androidx.navigation.compose.rememberNavController
 import com.example.DangerBook.data.local.database.AppDatabase
 import com.example.DangerBook.data.local.notifications.NotificationHelper
 import com.example.DangerBook.data.local.storage.UserPreferences
-import com.example.DangerBook.data.repository.UserRepository
-import com.example.DangerBook.data.repository.ServiceRepository
-import com.example.DangerBook.data.repository.AppointmentRepository
+import com.example.DangerBook.data.repository.UsuarioRepository
+import com.example.DangerBook.data.repository.ServicioRepository
+import com.example.DangerBook.data.repository.CitaRepository
 import com.example.DangerBook.navigation.AppNavGraph
 import com.example.DangerBook.ui.viewmodel.AuthViewModel
 import com.example.DangerBook.ui.viewmodel.AuthViewModelFactory
 import com.example.DangerBook.ui.viewmodel.ServicesViewModel
-import com.example.DangerBook.ui.viewmodel.ServicesViewModelFactory
+import com.example.DangerBook.ui.viewmodel.ServiciosViewModelFactory
 import com.example.DangerBook.ui.viewmodel.AppointmentViewModel
-import com.example.DangerBook.ui.viewmodel.AppointmentViewModelFactory
+import com.example.DangerBook.ui.viewmodel.CitaViewModelFactory
 import com.example.DangerBook.ui.theme.UINavegacionTheme
 import com.example.DangerBook.ui.viewmodel.AdminViewModel
 import com.example.DangerBook.ui.viewmodel.AdminViewModelFactory
@@ -82,9 +82,9 @@ fun AppRoot() {
     val appointmentDao = db.appointmentDao()
 
     // Inicializar repositorios
-    val userRepository = UserRepository(userDao)
-    val serviceRepository = ServiceRepository(serviceDao, barberDao)
-    val appointmentRepository = AppointmentRepository(appointmentDao, userDao, serviceDao, barberDao)
+    val usuarioRepository = UsuarioRepository(userDao)
+    val servicioRepository = ServicioRepository(serviceDao, barberDao)
+    val citaRepository = CitaRepository(appointmentDao, userDao, serviceDao, barberDao)
 
     // Estado de autenticación desde DataStore
     val currentUserId by userPrefs.userId.collectAsStateWithLifecycle(null)
@@ -95,11 +95,11 @@ fun AppRoot() {
 
     // Crear AuthViewModel
     val authViewModel: AuthViewModel = viewModel(
-        factory = AuthViewModelFactory(userRepository)
+        factory = AuthViewModelFactory(usuarioRepository)
     )
 
     val adminViewModel: AdminViewModel = viewModel(
-        factory = AdminViewModelFactory(userRepository, appointmentRepository)
+        factory = AdminViewModelFactory(usuarioRepository, citaRepository)
     )
 
     // Observar el estado de login para guardar sesión en DataStore
@@ -121,13 +121,13 @@ fun AppRoot() {
 
     // Crear ServicesViewModel
     val servicesViewModel: ServicesViewModel = viewModel(
-        factory = ServicesViewModelFactory(serviceRepository)
+        factory = ServiciosViewModelFactory(servicioRepository)
     )
 
     // Crear AppointmentViewModel con la nueva factory
     val appointmentViewModel: AppointmentViewModel = viewModel(
-        factory = AppointmentViewModelFactory(
-            repository = appointmentRepository,
+        factory = CitaViewModelFactory(
+            repository = citaRepository,
             userPreferences = userPrefs // Le pasamos el gestor de sesión
         )
     )
@@ -143,7 +143,7 @@ fun AppRoot() {
     val handlePhotoUpdated: (String) -> Unit = { photoUri ->
         scope.launch {
             currentUserId?.let { userId ->
-                userRepository.updateUserPhoto(userId, photoUri)
+                usuarioRepository.updateUserPhoto(userId, photoUri)
                 userPrefs.updateUserPhoto(photoUri)
             }
         }
