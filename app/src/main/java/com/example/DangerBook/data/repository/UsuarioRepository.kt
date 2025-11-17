@@ -1,12 +1,27 @@
 package com.example.DangerBook.data.repository
+import com.example.DangerBook.data.RemoteModule
 import com.example.DangerBook.data.local.user.UserDao
 import com.example.DangerBook.data.local.user.UserEntity
+import com.example.DangerBook.data.remoto.dto.UsuarioDto
+import com.example.DangerBook.data.remoto.service.UsuarioApiService
 import kotlinx.coroutines.flow.Flow
 
 // Lógica de negocio de usuarios
 class UsuarioRepository(
     private val userDao: UserDao
 ) {
+
+    private val usuarioApi: UsuarioApiService =
+        RemoteModule.create(UsuarioApiService::class.java)
+
+    suspend fun getUsuariosRemotos(): Result<List<UsuarioDto>> {
+        return try {
+        val usuarios = usuarioApi.getUsuarios()
+            Result.success(usuarios)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     // Validar credenciales
     suspend fun login(email: String, password: String): Result<UserEntity> {

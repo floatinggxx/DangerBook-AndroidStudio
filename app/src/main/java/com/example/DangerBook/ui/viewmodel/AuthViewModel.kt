@@ -235,4 +235,18 @@ class AuthViewModel(
             repository.updateUserPassword(userId, newPass)
         }
     }
+
+    fun probarUsuariosRemotos() {
+        viewModelScope.launch {
+            val result = repository.getUsuariosRemotos()
+
+            result
+                .onSuccess { usuarios ->
+                    android.util.Log.d("AuthViewModel", "Usuarios remotos: $usuarios")
+                }
+                .onFailure { exception ->
+                    android.util.Log.e("AuthViewModel", "Error al obtener usuarios remotos", exception)
+                }
+        }
+    }
 }

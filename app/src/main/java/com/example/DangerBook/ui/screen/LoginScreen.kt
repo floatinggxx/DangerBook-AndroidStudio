@@ -31,6 +31,10 @@ fun LoginScreenVm(
 
     val context = LocalContext.current
     val userPrefs = remember { UserPreferences(context) }
+    //Ver si se muestra al ejecutarlo, no se si esto se mantendra al final
+    LaunchedEffect(Unit) {
+        vm.probarUsuariosRemotos()
+    }
 
     LaunchedEffect(state.success) {
         if(state.success){
