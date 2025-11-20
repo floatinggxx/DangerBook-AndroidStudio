@@ -1,11 +1,18 @@
 package com.example.DangerBook.data.remoto.service
 
-import com.example.DangerBook.data.remoto.dto.UsuarioDto
+import com.example.DangerBook.data.remoto.dto.usuarios.UsuarioDto
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface UsuarioApiService {
     @GET("api/v1/usuarios")
-    suspend fun getUsuarios(): List<UsuarioDto>
+    suspend fun findAll(): List<UsuarioDto>
+
+    @GET("api/v1/usuarios/{id}")
+    suspend fun findById(@Path("id") id: Int): UsuarioDto
+
+    @POST("api/v1/usuarios")
+    suspend fun save(@Body usuario: UsuarioDto): UsuarioDto
 }
-
-

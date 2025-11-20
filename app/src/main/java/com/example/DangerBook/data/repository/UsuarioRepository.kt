@@ -1,8 +1,8 @@
 package com.example.DangerBook.data.repository
-import com.example.DangerBook.data.RemoteModule
+import com.example.DangerBook.service.UsuarioRemoteModule
 import com.example.DangerBook.data.local.user.UserDao
 import com.example.DangerBook.data.local.user.UserEntity
-import com.example.DangerBook.data.remoto.dto.UsuarioDto
+import com.example.DangerBook.data.remoto.dto.usuarios.UsuarioDto
 import com.example.DangerBook.data.remoto.service.UsuarioApiService
 import kotlinx.coroutines.flow.Flow
 
@@ -12,16 +12,39 @@ class UsuarioRepository(
 ) {
 
     private val usuarioApi: UsuarioApiService =
-        RemoteModule.create(UsuarioApiService::class.java)
+        UsuarioRemoteModule.create(UsuarioApiService::class.java)
+
+    // --- Remote Operations ---
 
     suspend fun getUsuariosRemotos(): Result<List<UsuarioDto>> {
         return try {
-        val usuarios = usuarioApi.getUsuarios()
+            val usuarios = usuarioApi.findAll()
             Result.success(usuarios)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
+
+    suspend fun findUsuarioByIdRemoto(id: Int): Result<UsuarioDto> {
+        return try {
+            val usuario = usuarioApi.findById(id)
+            Result.success(usuario)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun saveUsuarioRemoto(usuario: UsuarioDto): Result<UsuarioDto> {
+        return try {
+            val savedUsuario = usuarioApi.save(usuario)
+            Result.success(savedUsuario)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+    // --- Local Operations ---
 
     // Validar credenciales
     suspend fun login(email: String, password: String): Result<UserEntity> {
@@ -130,4 +153,5 @@ class UsuarioRepository(
     fun getUsersByRole(role: String): Flow<List<UserEntity>> {
         return userDao.getUsersByRole(role)
     }
+
 }
