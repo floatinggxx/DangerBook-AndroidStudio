@@ -1,33 +1,38 @@
 package com.example.DangerBook.data.repository
-import com.example.DangerBook.data.local.barbero.BarberDao
-import com.example.DangerBook.data.local.barbero.BarberEntity
-import com.example.DangerBook.data.local.service.ServiceDao
-import com.example.DangerBook.data.local.service.ServiceEntity
-import kotlinx.coroutines.flow.Flow
 
-// Lógica de negocio de servicios y barberos
-class ServicioRepository(
-    private val serviceDao: ServiceDao,
-    private val barberDao: BarberDao
-) {
+import com.example.DangerBook.data.remoto.dto.agendamiento.ServicioDto
+import com.example.DangerBook.data.remoto.service.ServicioApiService
+import com.example.DangerBook.service.UsuarioRemoteModule
 
-    // Obtener todos los servicios activos (Flow para observar cambios)
-    fun getAllActiveServices(): Flow<List<ServiceEntity>> {
-        return serviceDao.getAllActive()
+class ServicioRepository {
+
+    private val servicioApi: ServicioApiService =
+        UsuarioRemoteModule.create(ServicioApiService::class.java)
+
+    suspend fun findAll(): Result<List<ServicioDto>> {
+        return try {
+            val servicios = servicioApi.findAll()
+            Result.success(servicios)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    // Obtener un servicio específico por ID
-    suspend fun getServiceById(serviceId: Long): ServiceEntity? {
-        return serviceDao.getById(serviceId)
+    suspend fun findById(id: Int): Result<ServicioDto> {
+        return try {
+            val servicio = servicioApi.findById(id)
+            Result.success(servicio)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    // Obtener todos los barberos disponibles con Flow
-    fun getAllAvailableBarbers(): Flow<List<BarberEntity>> {
-        return barberDao.getAllAvailable()
-    }
-
-    // Obtener un barbero específico por ID
-    suspend fun getBarberById(barberId: Long): BarberEntity? {
-        return barberDao.getById(barberId)
+    suspend fun save(servicio: ServicioDto): Result<ServicioDto> {
+        return try {
+            val savedServicio = servicioApi.save(servicio)
+            Result.success(savedServicio)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
