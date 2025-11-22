@@ -15,4 +15,7 @@ interface UsuarioApiService {
 
     @POST("api/v1/usuarios")
     suspend fun save(@Body usuario: UsuarioDto): UsuarioDto
+
+    @POST("api/v1/usuarios/login")
+    suspend fun login(@Body body: Map<String, String>): UsuarioDto
 }

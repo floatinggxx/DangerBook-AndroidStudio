@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.Flow
 interface UserDao {
 
     // Insertar un nuevo usuario
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(user: UserEntity): Long
 
     // Insertar una lista de usuarios
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(users: List<UserEntity>)
 
     // Actualizar usuario (para foto de perfil, por ejemplo)

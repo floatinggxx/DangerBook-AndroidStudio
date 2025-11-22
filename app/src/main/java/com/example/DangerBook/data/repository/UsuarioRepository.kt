@@ -49,43 +49,28 @@ class UsuarioRepository(
 
     // Validar credenciales
     suspend fun login(email: String, password: String): Result<UserEntity> {
-        // NOTA: Este enfoque es inseguro y poco eficiente. Se recomienda un endpoint de login en el backend.
-        val remoteUsersResult = getUsuariosRemotos()
+        return try {
+            val credentials = mapOf("email" to email, "contrasena" to password)
+            val remoteUser = usuarioApi.login(credentials)
 
-        return remoteUsersResult.fold(
-            onSuccess = {
-                val remoteUser = it.find { user -> user.email == email && user.contrasena == password }
-                if (remoteUser != null) {
-                    // Opcional: Guardar o actualizar el usuario en la base de datos local al iniciar sesión
-                    val localUser = UserEntity(
-                        id = remoteUser.id_usuario?.toLong() ?: throw IllegalStateException("El ID de usuario remoto no puede ser nulo"),
-                        name = "${remoteUser.nombre} ${remoteUser.apellido}", // CONCATENAMOS
-                        email = remoteUser.email,
-                        phone = remoteUser.telefono,
-                        password = remoteUser.contrasena, // Considerar no guardar la contraseña en texto plano
-                        role = when (remoteUser.id_rol) {
-                            1 -> "admin"
-                            2 -> "barber"
-                            else -> "user"
-                        },
-                        photoUri = null // La foto se manejará por separado
-                    )
-                    userDao.insert(localUser) // Usar insert para crear o reemplazar
-                    Result.success(localUser)
-                } else {
-                    Result.failure(IllegalArgumentException("Credenciales Inválidas"))
-                }
-            },
-            onFailure = {
-                // Si falla la llamada remota, intentar con el login local como fallback
-                val localUser = userDao.getByEmail(email)
-                if (localUser != null && localUser.password == password) {
-                    Result.success(localUser)
-                } else {
-                    Result.failure(it)
-                }
-            }
-        )
+            val localUser = UserEntity(
+                id = remoteUser.id_usuario?.toLong() ?: throw IllegalStateException("El ID de usuario remoto no puede ser nulo"),
+                name = "${remoteUser.nombre} ${remoteUser.apellido}",
+                email = remoteUser.email,
+                phone = remoteUser.telefono,
+                password = remoteUser.contrasena, // Considerar no guardar la contraseña en texto plano
+                role = when (remoteUser.id_rol) {
+                    1 -> "admin"
+                    2 -> "barber"
+                    else -> "user"
+                },
+                photoUri = null
+            )
+            userDao.insert(localUser)
+            Result.success(localUser)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     // Registro: crear nuevo usuario
