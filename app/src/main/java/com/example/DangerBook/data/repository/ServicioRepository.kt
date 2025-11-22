@@ -1,22 +1,61 @@
 package com.example.DangerBook.data.repository
 
+import com.example.DangerBook.data.local.barbero.BarberDao
+import com.example.DangerBook.data.local.barbero.BarberEntity
+import com.example.DangerBook.data.local.service.ServiceDao
+import com.example.DangerBook.data.local.service.ServiceEntity
 import com.example.DangerBook.data.remoto.dto.agendamiento.ServicioDto
 import com.example.DangerBook.data.remoto.service.ServicioApiService
 import com.example.DangerBook.data.remoto.service.UsuarioRemoteModule
+import kotlinx.coroutines.flow.Flow
 
-class ServicioRepository {
+class ServicioRepository(
+    private val serviceDao: ServiceDao,
+    private val barberDao: BarberDao
+) {
 
     private val servicioApi: ServicioApiService =
         UsuarioRemoteModule.create(ServicioApiService::class.java)
 
-    suspend fun findAll(): Result<List<ServicioDto>> {
+    // Flujo de datos desde la base de datos local (fuente de verdad para la UI)
+    fun getAllServices(): Flow<List<ServiceEntity>> {
+        return serviceDao.getAllActive()
+    }
+
+    // Obtener todos los barberos disponibles
+    fun getAllAvailableBarbers(): Flow<List<BarberEntity>> {
+        return barberDao.getAllAvailable()
+    }
+
+    // Función para refrescar los datos desde la API
+    suspend fun refreshServices(): Result<Unit> {
         return try {
-            val servicios = servicioApi.findAll()
-            Result.success(servicios)
+            // 1. Obtener servicios de la API
+            val remoteServices = servicioApi.findAll()
+
+            // 2. Mapear DTOs a Entidades locales
+            val serviceEntities = remoteServices.map {
+                ServiceEntity(
+                    id = it.idServicio?.toLong() ?: 0L,
+                    name = it.nombre,
+                    description = it.descripcion,
+                    price = it.precio.toDoubleOrNull() ?: 0.0, // Conversión segura
+                    durationMinutes = 30 // Valor por defecto, ajustar si la API lo provee
+                )
+            }
+
+            // 3. Limpiar la tabla local y guardar los nuevos datos
+            serviceDao.deleteAll()
+            serviceDao.insertAll(serviceEntities)
+
+            Result.success(Unit)
+
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
+
+    // --- Métodos remotos adicionales (si son necesarios) ---
 
     suspend fun findById(id: Int): Result<ServicioDto> {
         return try {
@@ -30,6 +69,8 @@ class ServicioRepository {
     suspend fun save(servicio: ServicioDto): Result<ServicioDto> {
         return try {
             val savedServicio = servicioApi.save(servicio)
+            // Opcional: refrescar la lista después de guardar un nuevo servicio
+            refreshServices()
             Result.success(savedServicio)
         } catch (e: Exception) {
             Result.failure(e)

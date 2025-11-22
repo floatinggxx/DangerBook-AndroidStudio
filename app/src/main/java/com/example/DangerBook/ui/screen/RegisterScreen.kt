@@ -33,12 +33,14 @@ fun RegisterScreenVm(
 
     RegisterScreen( // Delegamos UI presentacional
         name = state.name,
+        apellido = state.apellido, // NUEVO
         email = state.email,
         phone = state.phone,
         pass = state.pass,
         confirm = state.confirm,
-        role = state.role, // NUEVO
+        role = state.role,
         nameError = state.nameError,
+        apellidoError = state.apellidoError, // NUEVO
         emailError = state.emailError,
         phoneError = state.phoneError,
         passError = state.passError,
@@ -46,8 +48,9 @@ fun RegisterScreenVm(
         canSubmit = state.canSubmit,
         isSubmitting = state.isSubmitting,
         errorMsg = state.errorMsg,
-        allowRoleSelection = allowRoleSelection, // NUEVO
+        allowRoleSelection = allowRoleSelection,
         onNameChange = vm::onNameChange,
+        onApellidoChange = vm::onApellidoChange, // NUEVO
         onEmailChange = vm::onRegisterEmailChange,
         onPhoneChange = vm::onPhoneChange,
         onPassChange = vm::onRegisterPassChange,
@@ -61,25 +64,28 @@ fun RegisterScreenVm(
 //2 ajustamos el private y parametros
 @Composable // Pantalla Registro (solo navegación)
 private fun RegisterScreen(
-    name: String,                                            // 1) Nombre (solo letras/espacios)
-    email: String,                                           // 2) Email
-    phone: String,                                           // 3) Teléfono (solo números)
-    pass: String,                                            // 4) Password (segura)
-    confirm: String,                                         // 5) Confirmación
-    nameError: String?,                                      // Errores
+    name: String,
+    apellido: String, // NUEVO
+    email: String,
+    phone: String,
+    pass: String,
+    confirm: String,
+    nameError: String?,
+    apellidoError: String?, // NUEVO
     emailError: String?,
     phoneError: String?,
     passError: String?,
     confirmError: String?,
-    canSubmit: Boolean,                                      // Habilitar botón
-    isSubmitting: Boolean,                                   // Flag de carga
-    errorMsg: String?,                                       // Error global (duplicado)
-    onNameChange: (String) -> Unit,                          // Handler nombre
-    onEmailChange: (String) -> Unit,                         // Handler email
-    onPhoneChange: (String) -> Unit,                         // Handler teléfono
-    onPassChange: (String) -> Unit,                          // Handler confirmación
-    onConfirmChange: (String) -> Unit,                       // Handler confirmación
-    onSubmit: () -> Unit,                                    // Acción Registrar
+    canSubmit: Boolean,
+    isSubmitting: Boolean,
+    errorMsg: String?,
+    onNameChange: (String) -> Unit,
+    onApellidoChange: (String) -> Unit, // NUEVO
+    onEmailChange: (String) -> Unit,
+    onPhoneChange: (String) -> Unit,
+    onPassChange: (String) -> Unit,
+    onConfirmChange: (String) -> Unit,
+    onSubmit: () -> Unit,
     onGoLogin: () -> Unit,
     allowRoleSelection: Boolean,
     role: String
@@ -114,23 +120,36 @@ private fun RegisterScreen(
             )
             Spacer(Modifier.height(24.dp))
 
-            // ---------- NOMBRE (solo letras/espacios) ----------
-            OutlinedTextField(
-                value = name,                                // Valor actual
-                onValueChange = onNameChange,                // Notifica VM (filtra y valida)
-                label = { Text("Nombre completo") },                  // Etiqueta
-                singleLine = true,                           // Una línea
-                isError = nameError != null,                 // Marca error
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text         // Teclado de texto
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-            if (nameError != null) {                         // Muestra error
+            // ---------- NOMBRE Y APELLIDO EN UNA FILA ----------
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // --- Nombre ---
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = onNameChange,
+                    label = { Text("Nombre") },
+                    singleLine = true,
+                    isError = nameError != null,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier.weight(1f)
+                )
+                // --- Apellido ---
+                OutlinedTextField(
+                    value = apellido,
+                    onValueChange = onApellidoChange,
+                    label = { Text("Apellido") },
+                    singleLine = true,
+                    isError = apellidoError != null,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            if (nameError != null) {
                 Text(nameError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+            } else if (apellidoError != null) {
+                Text(apellidoError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             }
 
-            Spacer(Modifier.height(16.dp))                    // Espacio
+            Spacer(Modifier.height(16.dp))
 
             // ---------- EMAIL ----------
             OutlinedTextField(

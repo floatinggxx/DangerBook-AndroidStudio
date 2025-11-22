@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.DangerBook.data.repository.UsuarioRepository
 import com.example.DangerBook.data.local.user.UserEntity
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -27,12 +26,14 @@ data class LoginUiState(
 // Estado de UI para Registro
 data class RegisterUiState(
     val name: String = "",
+    val apellido: String = "", // NUEVO
     val email: String = "",
     val phone: String = "",
     val pass: String = "",
     val confirm: String = "",
     val role: String = "user",
     val nameError: String? = null,
+    val apellidoError: String? = null, // NUEVO
     val emailError: String? = null,
     val phoneError: String? = null,
     val passError: String? = null,
@@ -80,7 +81,6 @@ class AuthViewModel(
 
         viewModelScope.launch {
             _login.update { it.copy(isSubmitting = true, errorMsg = null, success = false) }
-            delay(500) // Simulamos tiempo de red
 
             val result = repository.login(s.email, s.pass)
 
@@ -124,6 +124,14 @@ class AuthViewModel(
         recomputeRegisterCanSubmit()
     }
 
+    fun onApellidoChange(value: String) { // NUEVO
+        val filtered = value.filter { it.isLetter() || it.isWhitespace() }
+        _register.update {
+            it.copy(apellido = filtered, apellidoError = validateNameLettersOnly(filtered))
+        }
+        recomputeRegisterCanSubmit()
+    }
+
     fun onRegisterEmailChange(value: String) {
         _register.update { it.copy(email = value, emailError = validateEmail(value)) }
         recomputeRegisterCanSubmit()
@@ -151,8 +159,8 @@ class AuthViewModel(
 
     private fun recomputeRegisterCanSubmit() {
         val s = _register.value
-        val noErrors = listOf(s.nameError, s.emailError, s.phoneError, s.passError, s.confirmError).all { it == null }
-        val filled = s.name.isNotBlank() && s.email.isNotBlank() && s.phone.isNotBlank() &&
+        val noErrors = listOf(s.nameError, s.apellidoError, s.emailError, s.phoneError, s.passError, s.confirmError).all { it == null }
+        val filled = s.name.isNotBlank() && s.apellido.isNotBlank() && s.email.isNotBlank() && s.phone.isNotBlank() &&
                 s.pass.isNotBlank() && s.confirm.isNotBlank()
         _register.update { it.copy(canSubmit = noErrors && filled) }
     }
@@ -163,10 +171,10 @@ class AuthViewModel(
 
         viewModelScope.launch {
             _register.update { it.copy(isSubmitting = true, errorMsg = null, success = false) }
-            delay(700)
 
             val result = repository.register(
                 name = s.name,
+                apellido = s.apellido, // NUEVO
                 email = s.email,
                 phone = s.phone,
                 pass = s.pass

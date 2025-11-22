@@ -5,6 +5,7 @@ import com.example.DangerBook.data.local.user.UserEntity
 import com.example.DangerBook.data.remoto.dto.usuarios.UsuarioDto
 import com.example.DangerBook.data.remoto.service.UsuarioApiService
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 // Lógica de negocio de usuarios
 class UsuarioRepository(
@@ -48,39 +49,82 @@ class UsuarioRepository(
 
     // Validar credenciales
     suspend fun login(email: String, password: String): Result<UserEntity> {
-        val user = userDao.getByEmail(email)
-        return if (user != null && user.password == password) {
-            Result.success(user)
-        } else {
-            Result.failure(IllegalArgumentException("Credenciales Inválidas"))
-        }
+        // NOTA: Este enfoque es inseguro y poco eficiente. Se recomienda un endpoint de login en el backend.
+        val remoteUsersResult = getUsuariosRemotos()
+
+        return remoteUsersResult.fold(
+            onSuccess = {
+                val remoteUser = it.find { user -> user.email == email && user.contrasena == password }
+                if (remoteUser != null) {
+                    // Opcional: Guardar o actualizar el usuario en la base de datos local al iniciar sesión
+                    val localUser = UserEntity(
+                        id = remoteUser.id_usuario?.toLong() ?: throw IllegalStateException("El ID de usuario remoto no puede ser nulo"),
+                        name = "${remoteUser.nombre} ${remoteUser.apellido}", // CONCATENAMOS
+                        email = remoteUser.email,
+                        phone = remoteUser.telefono,
+                        password = remoteUser.contrasena, // Considerar no guardar la contraseña en texto plano
+                        role = when (remoteUser.id_rol) {
+                            1 -> "admin"
+                            2 -> "barber"
+                            else -> "user"
+                        },
+                        photoUri = null // La foto se manejará por separado
+                    )
+                    userDao.insert(localUser) // Usar insert para crear o reemplazar
+                    Result.success(localUser)
+                } else {
+                    Result.failure(IllegalArgumentException("Credenciales Inválidas"))
+                }
+            },
+            onFailure = {
+                // Si falla la llamada remota, intentar con el login local como fallback
+                val localUser = userDao.getByEmail(email)
+                if (localUser != null && localUser.password == password) {
+                    Result.success(localUser)
+                } else {
+                    Result.failure(it)
+                }
+            }
+        )
     }
 
     // Registro: crear nuevo usuario
     suspend fun register(
         name: String,
+        apellido: String, // NUEVO
         email: String,
         phone: String,
-        pass: String,
-        role: String = "user",
-        photoUri: String? = null
-    ): Result<Long> {
-        val exists = userDao.getByEmail(email) != null
-        if (exists) {
-            return Result.failure(IllegalArgumentException("Correo ya registrado"))
+        pass: String
+    ): Result<UsuarioDto> {
+        // 1. Crear el objeto DTO para enviar a la API
+        val newUserDto = UsuarioDto(
+            nombre = name,
+            apellido = apellido, // NUEVO
+            email = email,
+            telefono = phone,
+            contrasena = pass,
+            fechaRegistro = LocalDateTime.now().toString(),
+            id_rol = 3, // Por defecto, rol 'user'
+            id_estado = 1 // Por defecto, estado 'activo'
+        )
+
+        // 2. Guardar el usuario remotamente
+        val remoteResult = saveUsuarioRemoto(newUserDto)
+
+        remoteResult.onSuccess {
+            // 3. Si el registro remoto es exitoso, guardar en la base de datos local
+            val localUser = UserEntity(
+                id = it.id_usuario?.toLong() ?: 0L,
+                name = "${it.nombre} ${it.apellido}", // CONCATENAMOS
+                email = it.email,
+                phone = it.telefono,
+                password = it.contrasena, // Considerar no almacenar la contraseña en texto plano
+                role = "user"
+            )
+            userDao.insert(localUser)
         }
 
-        val id = userDao.insert(
-            UserEntity(
-                name = name,
-                email = email,
-                phone = phone,
-                password = pass,
-                role = role,
-                photoUri = photoUri
-            )
-        )
-        return Result.success(id)
+        return remoteResult
     }
 
     // Obtener usuario por ID

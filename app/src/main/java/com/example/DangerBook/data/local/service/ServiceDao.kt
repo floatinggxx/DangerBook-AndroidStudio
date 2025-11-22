@@ -28,4 +28,8 @@ interface ServiceDao {
     // Contar servicios (útil para verificar precarga)
     @Query("SELECT COUNT(*) FROM services")
     suspend fun count(): Int
+
+    // Eliminar todos los servicios
+    @Query("DELETE FROM services")
+    suspend fun deleteAll()
 }

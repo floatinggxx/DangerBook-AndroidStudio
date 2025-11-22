@@ -7,7 +7,9 @@ import com.example.DangerBook.data.local.barbero.BarberEntity
 import com.example.DangerBook.data.repository.ServicioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 // Estado de UI para la pantalla de servicios
@@ -24,44 +26,40 @@ class ServicesViewModel(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ServicesUiState())
-    val state: StateFlow<ServicesUiState> = _state
+    val state: StateFlow<ServicesUiState> = _state.asStateFlow()
 
     init {
-        // Cargar servicios y barberos al iniciar
-        loadServicesAndBarbers()
+        // Al iniciar, refrescar y cargar el contenido.
+        loadAndRefreshContent()
     }
 
-    private fun loadServicesAndBarbers() {
+    private fun loadAndRefreshContent() {
         viewModelScope.launch {
-            try {
-                _state.value = _state.value.copy(isLoading = true, errorMsg = null)
+            _state.update { it.copy(isLoading = true, errorMsg = null) }
 
-                // Observar servicios activos (Flow)
-                launch {
-                    repository.getAllActiveServices().collectLatest { services ->
-                        _state.value = _state.value.copy(
-                            services = services,
-                            isLoading = false
-                        )
-                    }
+            // 1. Intentar refrescar los datos de servicios desde la API.
+            // Si falla, el error se mostrará, pero la app seguirá funcionando con datos locales si existen.
+            repository.refreshServices().onFailure { error ->
+                _state.update { it.copy(errorMsg = "Fallo al sincronizar: ${error.message}") }
+            }
+
+            // 2. Lanzar colectores para observar la base de datos local.
+            // Estos se actualizarán automáticamente cuando 'refreshServices' inserte los nuevos datos.
+            launch {
+                repository.getAllServices().collectLatest { services ->
+                    _state.update { it.copy(services = services, isLoading = false) } // La carga principal termina al recibir los servicios
                 }
-
-                // Observar barberos disponibles (Flow)
-                launch {
-                    repository.getAllAvailableBarbers().collectLatest { barbers ->
-                        _state.value = _state.value.copy(
-                            barbers = barbers,
-                            isLoading = false
-                        )
-                    }
+            }
+            launch {
+                repository.getAllAvailableBarbers().collectLatest { barbers ->
+                    _state.update { it.copy(barbers = barbers) }
                 }
-
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    errorMsg = "Error al cargar servicios: ${e.message}"
-                )
             }
         }
+    }
+
+    // Función pública para permitir refrescar manualmente (ej: con un pull-to-refresh en la UI)
+    fun onRefresh() {
+        loadAndRefreshContent()
     }
 }
