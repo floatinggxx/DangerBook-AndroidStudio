@@ -1,11 +1,11 @@
-package com.example.DangerBook.service
+package com.example.DangerBook.data.remoto
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object UsuarioRemoteModule {
+object AgendamientoRemoteModule {
 
     private const val BASE_URL= "https://3hvtx1tb-8080.brs.devtunnels.ms/"
 

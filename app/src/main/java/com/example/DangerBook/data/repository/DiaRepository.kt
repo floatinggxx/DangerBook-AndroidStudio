@@ -2,7 +2,7 @@ package com.example.DangerBook.data.repository
 
 import com.example.DangerBook.data.remoto.dto.horarios.DiaDto
 import com.example.DangerBook.data.remoto.service.DiaApiService
-import com.example.DangerBook.service.UsuarioRemoteModule
+import com.example.DangerBook.data.remoto.UsuarioRemoteModule
 
 class DiaRepository {
 

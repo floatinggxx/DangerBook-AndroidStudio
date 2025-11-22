@@ -1,13 +1,12 @@
-package com.example.DangerBook.service
+package com.example.DangerBook.data.remoto
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object HorarioRemoteModule {
-    //La URL va aser la misma por ahora
-    //Hasta crear los puertos
+object UsuarioRemoteModule {
+
     private const val BASE_URL= "https://3hvtx1tb-8080.brs.devtunnels.ms/"
 
     private val logging = HttpLoggingInterceptor().apply {

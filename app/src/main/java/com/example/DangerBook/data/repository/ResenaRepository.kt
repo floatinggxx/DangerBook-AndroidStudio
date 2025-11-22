@@ -2,7 +2,7 @@ package com.example.DangerBook.data.repository
 
 import com.example.DangerBook.data.remoto.dto.resenas.ResenaDto
 import com.example.DangerBook.data.remoto.service.ResenaApiService
-import com.example.DangerBook.service.UsuarioRemoteModule
+import com.example.DangerBook.data.remoto.UsuarioRemoteModule
 
 class ResenaRepository {
 
