@@ -2,12 +2,12 @@ package com.example.DangerBook.data.repository
 
 import com.example.DangerBook.data.remoto.dto.resenas.ResenaDto
 import com.example.DangerBook.data.remoto.service.ResenaApiService
-import com.example.DangerBook.data.remoto.UsuarioRemoteModule
+import com.example.DangerBook.data.remoto.service.ResenaRemoteModule
 
 class ResenaRepository {
 
     private val resenaApi: ResenaApiService =
-        UsuarioRemoteModule.create(ResenaApiService::class.java)
+        ResenaRemoteModule.create(ResenaApiService::class.java)
 
     suspend fun findAll(): Result<List<ResenaDto>> {
         return try {

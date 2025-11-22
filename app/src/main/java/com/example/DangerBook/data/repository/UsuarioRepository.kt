@@ -1,5 +1,5 @@
 package com.example.DangerBook.data.repository
-import com.example.DangerBook.data.remoto.UsuarioRemoteModule
+import com.example.DangerBook.data.remoto.service.UsuarioRemoteModule
 import com.example.DangerBook.data.local.user.UserDao
 import com.example.DangerBook.data.local.user.UserEntity
 import com.example.DangerBook.data.remoto.dto.usuarios.UsuarioDto
@@ -153,5 +153,4 @@ class UsuarioRepository(
     fun getUsersByRole(role: String): Flow<List<UserEntity>> {
         return userDao.getUsersByRole(role)
     }
-
 }

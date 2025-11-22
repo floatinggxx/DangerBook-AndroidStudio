@@ -1,4 +1,4 @@
-package com.example.DangerBook.data.remoto
+package com.example.DangerBook.data.remoto.service
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

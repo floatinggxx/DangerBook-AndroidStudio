@@ -2,7 +2,7 @@ package com.example.DangerBook.data.repository
 
 import com.example.DangerBook.data.remoto.dto.usuarios.RolDto
 import com.example.DangerBook.data.remoto.service.RolApiService
-import com.example.DangerBook.data.remoto.UsuarioRemoteModule
+import com.example.DangerBook.data.remoto.service.UsuarioRemoteModule
 
 class RolRepository {
 
