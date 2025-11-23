@@ -1,5 +1,6 @@
 package com.example.DangerBook.data.remoto
 
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -7,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object AgendamientoRemoteModule {
 
-    private const val BASE_URL= "https://3hvtx1tb-8080.brs.devtunnels.ms/"
+    private const val BASE_URL= "https://3hvtx1tb-8083.brs.devtunnels.ms/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -18,10 +19,14 @@ object AgendamientoRemoteModule {
         .addInterceptor (logging)
         .build()
 
+    private val gson = GsonBuilder()
+        .setLenient()
+        .create()
+
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .client(okHttp)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
     fun <T> create(service: Class<T>): T = retrofit.create(service)

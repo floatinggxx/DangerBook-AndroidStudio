@@ -4,9 +4,9 @@ import com.example.DangerBook.data.local.barbero.BarberDao
 import com.example.DangerBook.data.local.barbero.BarberEntity
 import com.example.DangerBook.data.local.service.ServiceDao
 import com.example.DangerBook.data.local.service.ServiceEntity
+import com.example.DangerBook.data.remoto.AgendamientoRemoteModule
 import com.example.DangerBook.data.remoto.dto.agendamiento.ServicioDto
 import com.example.DangerBook.data.remoto.service.ServicioApiService
-import com.example.DangerBook.data.remoto.service.UsuarioRemoteModule
 import kotlinx.coroutines.flow.Flow
 
 class ServicioRepository(
@@ -15,7 +15,7 @@ class ServicioRepository(
 ) {
 
     private val servicioApi: ServicioApiService =
-        UsuarioRemoteModule.create(ServicioApiService::class.java)
+        AgendamientoRemoteModule.create(ServicioApiService::class.java)
 
     // Flujo de datos desde la base de datos local (fuente de verdad para la UI)
     fun getAllServices(): Flow<List<ServiceEntity>> {
