@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object HorarioRemoteModule {
     //La URL va aser la misma por ahora
     //Hasta crear los puertos
-    private const val BASE_URL= "https://3hvtx1tb-8080.brs.devtunnels.ms/"
+    private const val BASE_URL= "https://3hvtx1tb-8082.brs.devtunnels.ms/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

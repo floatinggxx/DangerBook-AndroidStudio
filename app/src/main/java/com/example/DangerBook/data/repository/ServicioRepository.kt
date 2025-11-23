@@ -1,5 +1,6 @@
 package com.example.DangerBook.data.repository
 
+import android.util.Log
 import com.example.DangerBook.data.local.barbero.BarberDao
 import com.example.DangerBook.data.local.barbero.BarberEntity
 import com.example.DangerBook.data.local.service.ServiceDao
@@ -32,6 +33,8 @@ class ServicioRepository(
         return try {
             // 1. Obtener servicios de la API
             val remoteServices = servicioApi.findAll()
+            Log.d("ServicioRepository", "Servicios recibidos de la API: $remoteServices")
+
 
             // 2. Mapear DTOs a Entidades locales
             val serviceEntities = remoteServices.map {
@@ -51,6 +54,7 @@ class ServicioRepository(
             Result.success(Unit)
 
         } catch (e: Exception) {
+            Log.e("ServicioRepository", "Error al refrescar servicios: ${e.message}", e)
             Result.failure(e)
         }
     }
