@@ -20,10 +20,7 @@ import com.example.DangerBook.data.local.storage.UserPreferences
 import com.example.DangerBook.data.repository.UsuarioRepository
 import com.example.DangerBook.data.repository.ServicioRepository
 import com.example.DangerBook.data.repository.CitaRepository
-import com.example.DangerBook.data.repository.HorarioRepository
 import com.example.DangerBook.data.repository.DisponibilidadRepository
-import com.example.DangerBook.data.repository.BloqueRepository
-import com.example.DangerBook.data.repository.DiaRepository
 import com.example.DangerBook.navigation.AppNavGraph
 import com.example.DangerBook.ui.viewmodel.AuthViewModel
 import com.example.DangerBook.ui.viewmodel.AuthViewModelFactory
@@ -87,22 +84,16 @@ fun AppRoot() {
     val barberDao = db.barberDao()
     val appointmentDao = db.appointmentDao()
 
-    // Inicializar repositorios
+    // Inicializar repositorios (versión simplificada)
     val usuarioRepository = UsuarioRepository(userDao)
     val servicioRepository = ServicioRepository(serviceDao, barberDao)
-    val horarioRepository = HorarioRepository()
     val disponibilidadRepository = DisponibilidadRepository()
-    val bloqueRepository = BloqueRepository()
-    val diaRepository = DiaRepository()
     val citaRepository = CitaRepository(
         appointmentDao,
         userDao,
         serviceDao,
         barberDao,
-        horarioRepository,
-        disponibilidadRepository,
-        bloqueRepository,
-        diaRepository
+        disponibilidadRepository // Se pasa solo el repositorio necesario
     )
 
     // Estado de autenticación desde DataStore

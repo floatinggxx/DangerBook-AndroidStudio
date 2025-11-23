@@ -15,4 +15,10 @@ interface DisponibilidadApiService {
 
     @POST("api/v1/disponibilidades")
     suspend fun save(@Body disponibilidad: DisponibilidadDto): DisponibilidadDto
+
+    @GET("api/v1/disponibilidad/barbero/{idBarbero}/fecha/{fecha}")
+    suspend fun getAvailableHours(
+        @Path("idBarbero") barberId: Long,
+        @Path("fecha") date: String // yyyy-MM-dd
+    ): List<String>
 }

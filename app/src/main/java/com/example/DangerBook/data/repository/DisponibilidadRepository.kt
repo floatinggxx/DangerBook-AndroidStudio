@@ -1,13 +1,13 @@
 package com.example.DangerBook.data.repository
 
 import com.example.DangerBook.data.remoto.dto.horarios.DisponibilidadDto
+import com.example.DangerBook.data.remoto.HorarioRemoteModule
 import com.example.DangerBook.data.remoto.service.DisponibilidadApiService
-import com.example.DangerBook.data.remoto.service.UsuarioRemoteModule
 
 class DisponibilidadRepository {
 
     private val disponibilidadApi: DisponibilidadApiService =
-        UsuarioRemoteModule.create(DisponibilidadApiService::class.java)
+        HorarioRemoteModule.create(DisponibilidadApiService::class.java)
 
     suspend fun findAll(): Result<List<DisponibilidadDto>> {
         return try {
@@ -31,6 +31,15 @@ class DisponibilidadRepository {
         return try {
             val savedDisponibilidad = disponibilidadApi.save(disponibilidad)
             Result.success(savedDisponibilidad)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getAvailableHours(barberId: Long, date: String): Result<List<String>> {
+        return try {
+            val hours = disponibilidadApi.getAvailableHours(barberId, date)
+            Result.success(hours)
         } catch (e: Exception) {
             Result.failure(e)
         }
