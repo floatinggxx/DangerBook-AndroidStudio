@@ -5,15 +5,24 @@ import com.example.DangerBook.data.local.appointment.AppointmentEntity
 import com.example.DangerBook.data.local.barbero.BarberDao
 import com.example.DangerBook.data.local.service.ServiceDao
 import com.example.DangerBook.data.local.user.UserDao
+import com.example.DangerBook.data.remoto.dto.horarios.BloqueDto
+import com.example.DangerBook.data.remoto.dto.horarios.DiaDto
+import com.example.DangerBook.data.remoto.dto.horarios.DisponibilidadDto
+import com.example.DangerBook.data.remoto.dto.horarios.HorarioDto
 import kotlinx.coroutines.flow.Flow
-import java.util.Calendar
+import java.text.SimpleDateFormat
+import java.util.*
 
 // Lógica de negocio de las citas
 class CitaRepository(
     private val appointmentDao: AppointmentDao,
     private val userDao: UserDao,
     private val serviceDao: ServiceDao,
-    private val barberDao: BarberDao
+    private val barberDao: BarberDao,
+    private val horarioRepository: HorarioRepository,
+    private val disponibilidadRepository: DisponibilidadRepository,
+    private val bloqueRepository: BloqueRepository,
+    private val diaRepository: DiaRepository
 ) {
 
     // Crear una nueva cita
@@ -130,46 +139,71 @@ class CitaRepository(
         date: Calendar,
         serviceDurationMinutes: Int
     ): List<Long> {
-        // Configurar inicio y fin del día
-        val startOfDay = date.clone() as Calendar
-        startOfDay.set(Calendar.HOUR_OF_DAY, 9)
-        startOfDay.set(Calendar.MINUTE, 0)
-        startOfDay.set(Calendar.SECOND, 0)
 
-        val endOfDay = date.clone() as Calendar
-        endOfDay.set(Calendar.HOUR_OF_DAY, 20)
-        endOfDay.set(Calendar.MINUTE, 0)
-        endOfDay.set(Calendar.SECOND, 0)
-
-        // Obtener citas existentes del barbero ese día
-        val existingAppointments = appointmentDao.getBarberAppointmentsForDay(
-            barberId,
-            startOfDay.timeInMillis,
-            endOfDay.timeInMillis
-        )
-
-        // Generar slots cada 30 minutos
         val availableSlots = mutableListOf<Long>()
-        val currentSlot = startOfDay.clone() as Calendar
 
-        while (currentSlot.before(endOfDay)) {
-            val slotTime = currentSlot.timeInMillis
+        try {
+            // 1. Obtener la disponibilidad del barbero
+            val disponibilidades = disponibilidadRepository.findAll().getOrThrow()
+            val disponibilidadBarbero = disponibilidades.filter { it.id_usuario == barberId.toInt() }
 
-            // Verificar que no colisione
-            val hasConflict = existingAppointments.any { appointment ->
-                val appointmentEnd = appointment.dateTime + (appointment.durationMinutes * 60 * 1000)
-                val slotEnd = slotTime + (serviceDurationMinutes * 60 * 1000)
+            // 2. Obtener los horarios para la disponibilidad del barbero
+            val horarios = horarioRepository.findAll().getOrThrow()
+            val horariosBarbero = horarios.filter { horario -> disponibilidadBarbero.any { it.id_horario == horario.id_horario } }
 
-                // Hay conflicto si los intervalos se solapan
-                slotTime < appointmentEnd && slotEnd > appointment.dateTime
+            // 3. Obtener los días y bloques
+            val dias = diaRepository.findAll().getOrThrow()
+            val bloques = bloqueRepository.findAll().getOrThrow()
+
+            // 4. Formatear la fecha seleccionada para comparar con el nombre del día
+            val dayFormat = SimpleDateFormat("EEEE", Locale("es", "ES"))
+            val selectedDayName = dayFormat.format(date.time)
+
+            // 5. Filtrar horarios para el día seleccionado
+            val horariosParaDia = horariosBarbero.filter { horario ->
+                val dia = dias.find { it.id_dia == horario.id_dia }
+                dia?.dia.equals(selectedDayName, ignoreCase = true)
             }
 
-            if (!hasConflict && slotTime > System.currentTimeMillis()) {
-                availableSlots.add(slotTime)
+            // 6. Obtener los bloques de tiempo para los horarios filtrados
+            val bloquesParaDia = horariosParaDia.mapNotNull { horario ->
+                bloques.find { it.id_bloque == horario.id_bloque }
             }
 
-            // Avanzar 30 minutos
-            currentSlot.add(Calendar.MINUTE, 30)
+            // 7. Convertir bloques a timestamps y añadir a la lista de slots disponibles
+            val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+            for (bloque in bloquesParaDia) {
+                val startTime = timeFormat.parse(bloque.fechaInicio)
+                if (startTime != null) {
+                    val slotCalendar = date.clone() as Calendar
+                    val timeCalendar = Calendar.getInstance().apply { time = startTime }
+                    slotCalendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY))
+                    slotCalendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE))
+                    slotCalendar.set(Calendar.SECOND, 0)
+
+                    val slotTime = slotCalendar.timeInMillis
+
+                    // Verificar que no colisione con citas existentes
+                    val existingAppointments = appointmentDao.getBarberAppointmentsForDay(
+                        barberId,
+                        slotCalendar.timeInMillis,
+                        slotCalendar.timeInMillis + serviceDurationMinutes * 60 * 1000
+                    )
+                    val hasConflict = existingAppointments.any { appointment ->
+                        val appointmentEnd = appointment.dateTime + (appointment.durationMinutes * 60 * 1000)
+                        val slotEnd = slotTime + (serviceDurationMinutes * 60 * 1000)
+                        slotTime < appointmentEnd && slotEnd > appointment.dateTime
+                    }
+
+                    if (!hasConflict && slotTime > System.currentTimeMillis()) {
+                        availableSlots.add(slotTime)
+                    }
+                }
+            }
+
+        } catch (e: Exception) {
+            // Manejar errores de la API
+            e.printStackTrace()
         }
 
         return availableSlots
