@@ -82,30 +82,34 @@ fun AppDrawer(
 fun defaultDrawerItems(
     onHome: () -> Unit,
     onLogin: () -> Unit,
-    onRegister: () -> Unit
+    onRegister: () -> Unit,
+    onReviews: () -> Unit // Añadido
 ): List<DrawerItem> = listOf(
     DrawerItem("Home", Icons.Filled.Home, onHome),
     DrawerItem("Iniciar Sesión", Icons.Filled.AccountCircle, onLogin),
-    DrawerItem("Registrarse", Icons.Filled.Person, onRegister)
+    DrawerItem("Registrarse", Icons.Filled.Person, onRegister),
+    DrawerItem("Ver Reseñas", Icons.Filled.RateReview, onReviews) // Añadido
 )
 
 // Helper: Ítems para usuarios AUTENTICADOS
 @Composable
 fun authenticatedDrawerItems(
     userName: String,
-    userRole: String, // NUEVO: rol del usuario
+    userRole: String,
     onHome: () -> Unit,
     onServices: () -> Unit,
     onBookAppointment: () -> Unit,
     onMyAppointments: () -> Unit,
-    onBarberAppointments: () -> Unit, // NUEVO
-    onAdminDashboard: () -> Unit, // NUEVO
+    onBarberAppointments: () -> Unit,
+    onAdminDashboard: () -> Unit,
     onProfile: () -> Unit,
+    onReviews: () -> Unit, // Añadido
     onLogout: () -> Unit
 ): List<DrawerItem> {
     val commonItems = mutableListOf(
         DrawerItem("Home", Icons.Filled.Home, onHome),
         DrawerItem("Servicios", Icons.Filled.ContentCut, onServices),
+        DrawerItem("Ver Reseñas", Icons.Filled.RateReview, onReviews), // Añadido
         DrawerItem("Perfil", Icons.Filled.AccountCircle, onProfile)
     )
 

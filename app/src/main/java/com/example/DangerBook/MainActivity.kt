@@ -17,33 +17,23 @@ import androidx.navigation.compose.rememberNavController
 import com.example.DangerBook.data.local.database.AppDatabase
 import com.example.DangerBook.data.local.notifications.NotificationHelper
 import com.example.DangerBook.data.local.storage.UserPreferences
-import com.example.DangerBook.data.repository.UsuarioRepository
-import com.example.DangerBook.data.repository.ServicioRepository
-import com.example.DangerBook.data.repository.CitaRepository
-import com.example.DangerBook.data.repository.DisponibilidadRepository
+import com.example.DangerBook.data.repository.*
 import com.example.DangerBook.navigation.AppNavGraph
-import com.example.DangerBook.ui.viewmodel.AuthViewModel
-import com.example.DangerBook.ui.viewmodel.AuthViewModelFactory
-import com.example.DangerBook.ui.viewmodel.ServicesViewModel
-import com.example.DangerBook.ui.viewmodel.ServiciosViewModelFactory
-import com.example.DangerBook.ui.viewmodel.AppointmentViewModel
-import com.example.DangerBook.ui.viewmodel.CitaViewModelFactory
+import com.example.DangerBook.ui.viewmodel.*
 import com.example.DangerBook.ui.theme.UINavegacionTheme
-import com.example.DangerBook.ui.viewmodel.AdminViewModel
-import com.example.DangerBook.ui.viewmodel.AdminViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    // Launcher para solicitar permiso de notificaciones
+    // CORRECCIÓN: Volver a añadir el launcher de permisos que fue borrado por error
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-
+            // El permiso fue concedido
         } else {
-            // Permiso denegado (la app seguirá funcionando sin notificaciones)
+            // El permiso fue denegado
         }
     }
 
@@ -52,10 +42,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Crear canal de notificaciones
         NotificationHelper.createNotificationChannel(this)
 
-        // Solicitar permiso de notificaciones
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -74,17 +62,15 @@ fun AppRoot() {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
 
-    // DataStore para persistencia de sesión
     val userPrefs = remember { UserPreferences(context) }
 
-    // Inicializar base de datos y DAOs
     val db = AppDatabase.getInstance(context)
     val userDao = db.userDao()
     val serviceDao = db.serviceDao()
     val barberDao = db.barberDao()
     val appointmentDao = db.appointmentDao()
 
-    // Inicializar repositorios (versión simplificada)
+    // Repositorios
     val usuarioRepository = UsuarioRepository(userDao)
     val servicioRepository = ServicioRepository(serviceDao, barberDao)
     val disponibilidadRepository = DisponibilidadRepository()
@@ -93,26 +79,23 @@ fun AppRoot() {
         userDao,
         serviceDao,
         barberDao,
-        disponibilidadRepository // Se pasa solo el repositorio necesario
+        disponibilidadRepository
     )
+    val resenaRepository = ResenaRepository()
 
-    // Estado de autenticación desde DataStore
+    // ViewModels
+    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(usuarioRepository))
+    val adminViewModel: AdminViewModel = viewModel(factory = AdminViewModelFactory(usuarioRepository, citaRepository))
+    val servicesViewModel: ServicesViewModel = viewModel(factory = ServiciosViewModelFactory(servicioRepository))
+    val appointmentViewModel: AppointmentViewModel = viewModel(factory = CitaViewModelFactory(repository = citaRepository, userPreferences = userPrefs))
+    val resenaViewModel: ResenaViewModel = viewModel(factory = ResenaViewModelFactory(resenaRepository))
+
     val currentUserId by userPrefs.userId.collectAsStateWithLifecycle(null)
     val currentUserName by userPrefs.userName.collectAsStateWithLifecycle(null)
     val currentUserEmail by userPrefs.userEmail.collectAsStateWithLifecycle(null)
     val currentUserPhone by userPrefs.userPhone.collectAsStateWithLifecycle(null)
     val currentUserRole by userPrefs.userRole.collectAsStateWithLifecycle(null)
 
-    // Crear AuthViewModel
-    val authViewModel: AuthViewModel = viewModel(
-        factory = AuthViewModelFactory(usuarioRepository)
-    )
-
-    val adminViewModel: AdminViewModel = viewModel(
-        factory = AdminViewModelFactory(usuarioRepository, citaRepository)
-    )
-
-    // Observar el estado de login para guardar sesión en DataStore
     LaunchedEffect(authViewModel) {
         authViewModel.login.collectLatest { loginState ->
             if (loginState.success && loginState.loggedUser != null) {
@@ -129,27 +112,12 @@ fun AppRoot() {
         }
     }
 
-    // Crear ServicesViewModel
-    val servicesViewModel: ServicesViewModel = viewModel(
-        factory = ServiciosViewModelFactory(servicioRepository)
-    )
-
-    // Crear AppointmentViewModel con la nueva factory
-    val appointmentViewModel: AppointmentViewModel = viewModel(
-        factory = CitaViewModelFactory(
-            repository = citaRepository,
-            userPreferences = userPrefs // Le pasamos el gestor de sesión
-        )
-    )
-
-    // Cerrar sesión
     val handleLogout: () -> Unit = {
         scope.launch {
             userPrefs.clearSession()
         }
     }
 
-    // Actualizar foto de perfil
     val handlePhotoUpdated: (String) -> Unit = { photoUri ->
         scope.launch {
             currentUserId?.let { userId ->
@@ -159,7 +127,6 @@ fun AppRoot() {
         }
     }
 
-    // Actualizar nombre de usuario
     val handleUserNameUpdated: (String) -> Unit = { newName ->
         scope.launch {
             currentUserId?.let { userId ->
@@ -169,7 +136,6 @@ fun AppRoot() {
         }
     }
 
-    // Actualizar email de usuario
     val handleUserEmailUpdated: (String) -> Unit = { newEmail ->
         scope.launch {
             currentUserId?.let { userId ->
@@ -179,7 +145,6 @@ fun AppRoot() {
         }
     }
 
-    // Actualizar teléfono de usuario
     val handleUserPhoneUpdated: (String) -> Unit = { newPhone ->
         scope.launch {
             currentUserId?.let { userId ->
@@ -189,7 +154,6 @@ fun AppRoot() {
         }
     }
 
-    // Actualizar contraseña de usuario
     val handleUserPasswordUpdated: (String) -> Unit = { newPassword ->
         scope.launch {
             currentUserId?.let { userId ->
@@ -204,7 +168,8 @@ fun AppRoot() {
             authViewModel = authViewModel,
             servicesViewModel = servicesViewModel,
             appointmentViewModel = appointmentViewModel,
-            adminViewModel = adminViewModel, 
+            adminViewModel = adminViewModel,
+            resenaViewModel = resenaViewModel,
             currentUserId = currentUserId,
             currentUserName = currentUserName,
             currentUserEmail = currentUserEmail,

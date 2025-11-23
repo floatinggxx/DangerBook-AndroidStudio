@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCut
+import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,7 +19,8 @@ fun HomeScreen(
     userRole: String?, // NUEVO: mostrar rol del usuario
     onGoLogin: () -> Unit,
     onGoRegister: () -> Unit,
-    onGoServices: () -> Unit
+    onGoServices: () -> Unit,
+    onGoReviews: () -> Unit // Navegación a reseñas
 ) {
     val bg = MaterialTheme.colorScheme.background
 
@@ -83,9 +85,9 @@ fun HomeScreen(
 
                     Text(
                         text = if (isAuthenticated) {
-                            "Agenda tu próxima cita con nuestros expertos barberos. Ofrecemos cortes clásicos, modernos, arreglo de barba y mucho más."
+                            "Agenda tu próxima cita o déjanos una reseña para ayudarnos a mejorar."
                         } else {
-                            "La mejor barbería de la ciudad. Agenda tu cita online de forma rápida y sencilla."
+                            "La mejor barbería de la ciudad. Agenda tu cita online o revisa las opiniones de nuestros clientes."
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
@@ -98,39 +100,59 @@ fun HomeScreen(
 
             // Botones de acción
             if (isAuthenticated) {
-                // Usuario autenticado: mostrar botón para ver servicios
-                Button(
-                    onClick = onGoServices,
-                    modifier = Modifier.fillMaxWidth(0.8f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Icon(Icons.Filled.ContentCut, contentDescription = null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Ver Servicios", style = MaterialTheme.typography.titleMedium)
-                }
-            } else {
-                // Usuario NO autenticado: mostrar botones de login/registro
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth(0.9f)
-                ) {
-                    OutlinedButton(
-                        onClick = onGoLogin,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Iniciar Sesión")
-                    }
-
+                // Usuario autenticado: mostrar botones de servicios y reseñas
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Button(
-                        onClick = onGoRegister,
-                        modifier = Modifier.weight(1f),
+                        onClick = onGoServices,
+                        modifier = Modifier.fillMaxWidth(0.8f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text("Registrarse")
+                        Icon(Icons.Filled.ContentCut, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Ver Servicios", style = MaterialTheme.typography.titleMedium)
+                    }
+                    OutlinedButton(
+                        onClick = onGoReviews,
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Icon(Icons.Filled.RateReview, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Ver Reseñas")
+                    }
+                }
+            } else {
+                // Usuario NO autenticado: mostrar botones de login/registro
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        OutlinedButton(
+                            onClick = onGoLogin,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Iniciar Sesión")
+                        }
+
+                        Button(
+                            onClick = onGoRegister,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text("Registrarse")
+                        }
+                    }
+                    OutlinedButton(
+                        onClick = onGoReviews,
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        Icon(Icons.Filled.RateReview, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Ver Reseñas de Clientes")
                     }
                 }
             }

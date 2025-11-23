@@ -6,7 +6,7 @@ data class ResenaDto(
     @SerializedName("id_resena")
     val id_resena: Int? = null,
     @SerializedName("f_publicacion")
-    val f_publicacion: String,
+    val f_publicacion: String?, // CORRECCIÓN: Permitir que la fecha sea nula
     @SerializedName("comentario")
     val comentario: String?,
     @SerializedName("calificacion")

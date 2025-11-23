@@ -25,6 +25,7 @@ import com.example.DangerBook.ui.viewmodel.AdminViewModel
 import com.example.DangerBook.ui.viewmodel.AuthViewModel
 import com.example.DangerBook.ui.viewmodel.ServicesViewModel
 import com.example.DangerBook.ui.viewmodel.AppointmentViewModel
+import com.example.DangerBook.ui.viewmodel.ResenaViewModel
 
 @Composable
 fun AppNavGraph(
@@ -33,6 +34,7 @@ fun AppNavGraph(
     servicesViewModel: ServicesViewModel,
     appointmentViewModel: AppointmentViewModel,
     adminViewModel: AdminViewModel,
+    resenaViewModel: ResenaViewModel, // ViewModel de reseñas
     currentUserId: Long?,
     currentUserName: String?,
     currentUserEmail: String?,
@@ -57,6 +59,7 @@ fun AppNavGraph(
     val goBookAppointment: () -> Unit = { navController.navigate(Route.BookAppointment.path) }
     val goMyAppointments: () -> Unit = { navController.navigate(Route.MyAppointments.path) }
     val goProfile: () -> Unit = { navController.navigate(Route.Profile.path) }
+    val goReviews: () -> Unit = { navController.navigate(Route.Reviews.path) } // Navegación a reseñas
     val goAdminDashboard: () -> Unit = { navController.navigate(Route.AdminDashboard.path) }
     val goBarberAppointments: () -> Unit = { navController.navigate(Route.BarberAppointments.path) }
 
@@ -96,6 +99,10 @@ fun AppNavGraph(
                             scope.launch { drawerState.close() }
                             goProfile()
                         },
+                        onReviews = { // Añadido al drawer
+                            scope.launch { drawerState.close() }
+                            goReviews()
+                        },
                         onLogout = handleLogout,
                         userRole = currentUserRole ?: "",
                         onBarberAppointments = {
@@ -120,6 +127,10 @@ fun AppNavGraph(
                         onRegister = {
                             scope.launch { drawerState.close() }
                             goRegister()
+                        },
+                        onReviews = { // Añadido al drawer
+                            scope.launch { drawerState.close() }
+                            goReviews()
                         }
                     )
                 }
@@ -156,6 +167,7 @@ fun AppNavGraph(
                         onGoLogin = goLogin,
                         onGoRegister = goRegister,
                         onGoServices = goServices,
+                        onGoReviews = goReviews, // Pasar la función de navegación
                         userRole = currentUserRole ?: ""
                     )
                 }
@@ -250,6 +262,14 @@ fun AppNavGraph(
                             onUserPhoneUpdated = onUserPhoneUpdated,
                             onUserPasswordUpdated = onUserPasswordUpdated
                         )
+                    }
+                }
+                
+                 composable(Route.Reviews.path) { // Nueva pantalla de reseñas
+                    if (!isAuthenticated) {
+                        navController.navigate(Route.Login.path)
+                    } else {
+                        ResenasScreen(vm = resenaViewModel)
                     }
                 }
 

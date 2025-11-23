@@ -12,6 +12,7 @@ sealed class Route(val path: String) {
     object BookAppointment : Route("book_appointment") // Agendar nueva cita
     object MyAppointments : Route("my_appointments") // Ver mis citas
     object Profile : Route("profile") // Perfil del usuario
+    object Reviews : Route("reviews") // Nueva ruta para las reseñas
 
     // Rutas para barberos (solo role = "barber")
     object BarberAppointments : Route("barber_appointments") // Citas asignadas al barbero
@@ -33,4 +34,5 @@ sealed class Route(val path: String) {
  * - BookAppointment: Agendar una cita
  * - MyAppointments: Ver/cancelar mis citas
  * - Profile: Ver/editar perfil
+ * - Reviews: Ver y dejar reseñas
  */
