@@ -72,7 +72,7 @@ fun AppRoot() {
 
     // Repositorios
     val usuarioRepository = UsuarioRepository(userDao)
-    val servicioRepository = ServicioRepository(serviceDao, barberDao)
+    val servicioRepository = ServicioRepository(serviceDao, userDao)
     val disponibilidadRepository = DisponibilidadRepository()
     val citaRepository = CitaRepository(
         appointmentDao,

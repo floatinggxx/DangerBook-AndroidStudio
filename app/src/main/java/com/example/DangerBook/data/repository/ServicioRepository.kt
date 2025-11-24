@@ -1,18 +1,19 @@
 package com.example.DangerBook.data.repository
 
 import android.util.Log
-import com.example.DangerBook.data.local.barbero.BarberDao
 import com.example.DangerBook.data.local.barbero.BarberEntity
 import com.example.DangerBook.data.local.service.ServiceDao
 import com.example.DangerBook.data.local.service.ServiceEntity
+import com.example.DangerBook.data.local.user.UserDao
 import com.example.DangerBook.data.remoto.AgendamientoRemoteModule
 import com.example.DangerBook.data.remoto.dto.agendamiento.ServicioDto
 import com.example.DangerBook.data.remoto.service.ServicioApiService
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class ServicioRepository(
     private val serviceDao: ServiceDao,
-    private val barberDao: BarberDao
+    private val userDao: UserDao
 ) {
 
     private val servicioApi: ServicioApiService =
@@ -23,9 +24,20 @@ class ServicioRepository(
         return serviceDao.getAllActive()
     }
 
-    // Obtener todos los barberos disponibles
+    // Obtener todos los barberos disponibles desde la tabla de usuarios
     fun getAllAvailableBarbers(): Flow<List<BarberEntity>> {
-        return barberDao.getAllAvailable()
+        return userDao.getAllBarbers().map { userEntities ->
+            userEntities.map { user ->
+                BarberEntity(
+                    id = user.id,
+                    name = user.name,
+                    specialty = "Barbero", // Placeholder
+                    photoUrl = user.photoUri,
+                    rating = 5.0, // Default value
+                    isAvailable = true // Assume available
+                )
+            }
+        }
     }
 
     // Función para refrescar los datos desde la API
