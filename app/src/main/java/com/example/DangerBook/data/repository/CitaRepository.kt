@@ -2,7 +2,6 @@ package com.example.DangerBook.data.repository
 
 import com.example.DangerBook.data.local.appointment.AppointmentDao
 import com.example.DangerBook.data.local.appointment.AppointmentEntity
-import com.example.DangerBook.data.local.barbero.BarberDao
 import com.example.DangerBook.data.local.service.ServiceDao
 import com.example.DangerBook.data.local.user.UserDao
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +13,6 @@ class CitaRepository(
     private val appointmentDao: AppointmentDao,
     private val userDao: UserDao,
     private val serviceDao: ServiceDao,
-    private val barberDao: BarberDao,
     private val disponibilidadRepository: DisponibilidadRepository // ÚNICA dependencia de horarios
 ) {
 
@@ -37,8 +35,11 @@ class CitaRepository(
             if (serviceDao.getById(serviceId) == null) {
                 return Result.failure(IllegalArgumentException("El servicio con ID $serviceId no existe."))
             }
-            if (barberId != null && barberDao.getById(barberId) == null) {
-                return Result.failure(IllegalArgumentException("El barbero con ID $barberId no existe."))
+            if (barberId != null) {
+                val barberUser = userDao.getById(barberId)
+                if (barberUser == null || barberUser.role != "barber") {
+                    return Result.failure(IllegalArgumentException("El barbero con ID $barberId no existe o no es válido."))
+                }
             }
             if (barberId != null) {
                 val conflicts = appointmentDao.countConflictingAppointments(barberId, dateTime)

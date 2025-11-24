@@ -67,7 +67,6 @@ fun AppRoot() {
     val db = AppDatabase.getInstance(context)
     val userDao = db.userDao()
     val serviceDao = db.serviceDao()
-    val barberDao = db.barberDao()
     val appointmentDao = db.appointmentDao()
 
     // Repositorios
@@ -78,7 +77,6 @@ fun AppRoot() {
         appointmentDao,
         userDao,
         serviceDao,
-        barberDao,
         disponibilidadRepository
     )
     val resenaRepository = ResenaRepository()
