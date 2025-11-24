@@ -7,10 +7,12 @@ import com.example.DangerBook.data.repository.UsuarioRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class UsuarioRepositoryTest {
 
     private lateinit var repository: UsuarioRepository
@@ -23,14 +25,13 @@ class UsuarioRepositoryTest {
         apiService = mockk(relaxed = true)
         repository = UsuarioRepository(userDao)
 
-        // Inyectar el mock de apiService en el repositorio
         val apiField = repository.javaClass.getDeclaredField("usuarioApi")
         apiField.isAccessible = true
         apiField.set(repository, apiService)
     }
 
     @Test
-    fun `login success`() = runBlocking {
+    fun `login success`() = runTest {
         val email = "test@example.com"
         val password = "password"
         val userDto = UsuarioDto(
