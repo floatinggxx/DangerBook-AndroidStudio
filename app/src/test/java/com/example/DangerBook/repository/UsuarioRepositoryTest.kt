@@ -41,6 +41,8 @@ class UsuarioRepositoryTest {
             email = email,
             telefono = "123456789",
             contrasena = password,
+            fechaRegistro = "2024-01-01T12:00:00",
+            id_estado = 1,
             id_rol = 3
         )
 
