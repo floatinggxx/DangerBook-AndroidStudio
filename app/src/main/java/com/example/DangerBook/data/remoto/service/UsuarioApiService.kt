@@ -1,6 +1,7 @@
 package com.example.DangerBook.data.remoto.service
 
 import com.example.DangerBook.data.remoto.dto.usuarios.UsuarioDto
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -18,4 +19,7 @@ interface UsuarioApiService {
 
     @POST("api/v1/usuarios/login")
     suspend fun login(@Body body: Map<String, String>): UsuarioDto
+
+    @POST("api/v1/usuarios/reset-password")
+    suspend fun resetPassword(@Body body: Map<String, String>): Response<Unit>
 }

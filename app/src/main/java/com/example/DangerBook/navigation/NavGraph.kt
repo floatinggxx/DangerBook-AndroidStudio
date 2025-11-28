@@ -55,6 +55,7 @@ fun AppNavGraph(
     val goHome: () -> Unit = { navController.navigate(Route.Home.path) }
     val goLogin: () -> Unit = { navController.navigate(Route.Login.path) }
     val goRegister: () -> Unit = { navController.navigate(Route.Register.path) }
+    val goForgotPassword: () -> Unit = { navController.navigate(Route.ForgotPassword.path) }
     val goServices: () -> Unit = { navController.navigate(Route.Services.path) }
     val goBookAppointment: () -> Unit = { navController.navigate(Route.BookAppointment.path) }
     val goMyAppointments: () -> Unit = { navController.navigate(Route.MyAppointments.path) }
@@ -185,7 +186,8 @@ fun AppNavGraph(
                                 popUpTo(Route.Home.path) { inclusive = false }
                             }
                         },
-                        onGoRegister = goRegister
+                        onGoRegister = goRegister,
+                        onGoForgotPassword = goForgotPassword
                     )
                 }
 
@@ -199,6 +201,13 @@ fun AppNavGraph(
                         vm = authViewModel,
                         onRegisteredNavigateLogin = goLogin,
                         onGoLogin = goLogin
+                    )
+                }
+                
+                composable(Route.ForgotPassword.path) {
+                    ForgotPasswordScreen(
+                        navController = navController,
+                        authViewModel = authViewModel
                     )
                 }
 

@@ -173,6 +173,19 @@ class UsuarioRepository(
         }
     }
 
+    suspend fun resetPassword(email: String): Result<Unit> {
+        return try {
+            val response = usuarioApi.resetPassword(mapOf("email" to email))
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Error al resetear la contraseña"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // Obtener todos los barberos (Flow para observar cambios)
     fun getAllBarbers(): Flow<List<UserEntity>> {
         return userDao.getAllBarbers()

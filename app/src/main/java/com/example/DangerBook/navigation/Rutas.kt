@@ -6,6 +6,7 @@ sealed class Route(val path: String) {
     object Home : Route("home")
     object Login : Route("login")
     object Register : Route("register")
+    object ForgotPassword : Route("forgot_password") // Ruta para recuperar contraseña
 
     // Rutas privadas (requieren autenticación)
     object Services : Route("services") // Pantalla de servicios disponibles
@@ -28,6 +29,7 @@ sealed class Route(val path: String) {
  * - Home: Página de bienvenida
  * - Login: Iniciar sesión
  * - Register: Crear cuenta
+ * - ForgotPassword: Recuperar contraseña
  *
  * PRIVADAS (requiere login):
  * - Services: Ver servicios de la barbería

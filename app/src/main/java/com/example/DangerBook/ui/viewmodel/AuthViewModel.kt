@@ -244,6 +244,12 @@ class AuthViewModel(
         }
     }
 
+    fun resetPassword(email: String) {
+        viewModelScope.launch {
+            repository.resetPassword(email)
+        }
+    }
+
     fun probarUsuariosRemotos() {
         viewModelScope.launch {
             val result = repository.getUsuariosRemotos()

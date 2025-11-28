@@ -24,7 +24,8 @@ import com.example.DangerBook.ui.viewmodel.AuthViewModel         // Nuestro View
 fun LoginScreenVm(
     vm: AuthViewModel,                            // MOD: recibimos el VM desde NavGraph
     onLoginOkNavigateHome: () -> Unit,                       // Navega a Home cuando el login es exitoso
-    onGoRegister: () -> Unit                                 // Navega a Registro
+    onGoRegister: () -> Unit,                                 // Navega a Registro
+    onGoForgotPassword: () -> Unit                            // Navega a recuperar contraseña
 ) {
 
     val state by vm.login.collectAsStateWithLifecycle()      // Observa el StateFlow en tiempo real
@@ -56,7 +57,8 @@ fun LoginScreenVm(
         onEmailChange = vm::onLoginEmailChange,              // Handler email
         onPassChange = vm::onLoginPassChange,                // Handler pass
         onSubmit = vm::submitLogin,                          // Acción enviar
-        onGoRegister = onGoRegister                          // Ir a Registro
+        onGoRegister = onGoRegister,                         // Ir a Registro
+        onGoForgotPassword = onGoForgotPassword
     )
 }
 
@@ -75,7 +77,8 @@ private fun LoginScreen(
     onEmailChange: (String) -> Unit,                         // Handler cambio email
     onPassChange: (String) -> Unit,                          // Handler cambio password
     onSubmit: () -> Unit,                                    // Acción enviar
-    onGoRegister: () -> Unit                                 // Acción ir a registro
+    onGoRegister: () -> Unit,                                 // Acción ir a registro
+    onGoForgotPassword: () -> Unit
 ) {
     val bg = MaterialTheme.colorScheme.secondaryContainer // Change background color for a fresh look
     var showPass by remember { mutableStateOf(false) }        // Estado local para mostrar/ocultar contraseña
@@ -174,6 +177,11 @@ private fun LoginScreen(
             // ---------- BOTÓN IR A REGISTRO ----------
             TextButton(onClick = onGoRegister) {
                 Text("¿No tienes una cuenta? Regístrate")
+            }
+
+            // ---------- BOTÓN IR A OLVIDÉ CONTRASEÑA ----------
+            TextButton(onClick = onGoForgotPassword) {
+                Text("¿Olvidaste tu contraseña?")
             }
         }
     }
