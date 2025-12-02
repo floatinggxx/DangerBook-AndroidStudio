@@ -38,7 +38,7 @@ fun ProfileScreen(
     userPhone: String,
     userRole: String,
     onLogout: () -> Unit,
-    onPhotoUpdated: (String) -> Unit,
+    onPhotoUpdated: (ByteArray) -> Unit,
     onUserNameUpdated: (String) -> Unit,
     onUserEmailUpdated: (String) -> Unit,
     onUserPhoneUpdated: (String) -> Unit,
@@ -71,11 +71,16 @@ fun ProfileScreen(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && pendingCaptureUri != null) {
-            val newPhotoUri = pendingCaptureUri.toString()
-            photoUriString = newPhotoUri
+            val newPhotoUri = pendingCaptureUri
+            photoUriString = newPhotoUri.toString()
             scope.launch {
-                userPrefs.updateUserPhoto(newPhotoUri)
-                onPhotoUpdated(newPhotoUri)
+                userPrefs.updateUserPhoto(newPhotoUri.toString())
+                val inputStream = context.contentResolver.openInputStream(newPhotoUri!!)
+                val imageBytes = inputStream?.readBytes()
+                inputStream?.close()
+                if (imageBytes != null) {
+                    onPhotoUpdated(imageBytes)
+                }
             }
             Toast.makeText(context, "Foto actualizada correctamente", Toast.LENGTH_SHORT).show()
         } else {

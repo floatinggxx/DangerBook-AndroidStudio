@@ -5,6 +5,9 @@ import com.example.DangerBook.data.local.user.UserEntity
 import com.example.DangerBook.data.remoto.dto.usuarios.UsuarioDto
 import com.example.DangerBook.data.remoto.service.UsuarioApiService
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.time.LocalDateTime
 
 // Lógica de negocio de usuarios
@@ -39,6 +42,21 @@ class UsuarioRepository(
         return try {
             val savedUsuario = usuarioApi.save(usuario)
             Result.success(savedUsuario)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun updateUserPhotoRemoto(userId: Long, photoBytes: ByteArray): Result<Unit> {
+        return try {
+            val requestFile = photoBytes.toRequestBody("image/jpeg".toMediaTypeOrNull(), 0, photoBytes.size)
+            val body = MultipartBody.Part.createFormData("photo", "photo.jpg", requestFile)
+            val response = usuarioApi.updatePhoto(userId, body)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Error al actualizar la foto"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -128,13 +146,8 @@ class UsuarioRepository(
     }
 
     // Actualizar solo la foto de perfil
-    suspend fun updateUserPhoto(userId: Long, photoUri: String?): Result<Unit> {
-        return try {
-            userDao.updatePhoto(userId, photoUri)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun updateUserPhoto(userId: Long, photoBytes: ByteArray): Result<Unit> {
+        return updateUserPhotoRemoto(userId, photoBytes)
     }
 
     suspend fun updateUserName(userId: Long, newName: String): Result<Unit> {

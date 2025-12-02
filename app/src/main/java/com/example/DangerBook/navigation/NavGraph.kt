@@ -41,7 +41,7 @@ fun AppNavGraph(
     currentUserPhone: String?,
     currentUserRole: String?,
     onLogout: () -> Unit,
-    onPhotoUpdated: (String) -> Unit,
+    onPhotoUpdated: (ByteArray) -> Unit,
     onUserNameUpdated: (String) -> Unit,
     onUserEmailUpdated: (String) -> Unit,
     onUserPhoneUpdated: (String) -> Unit,

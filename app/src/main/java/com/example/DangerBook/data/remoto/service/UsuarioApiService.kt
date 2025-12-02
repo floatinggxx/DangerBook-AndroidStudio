@@ -1,10 +1,13 @@
 package com.example.DangerBook.data.remoto.service
 
 import com.example.DangerBook.data.remoto.dto.usuarios.UsuarioDto
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface UsuarioApiService {
@@ -22,4 +25,11 @@ interface UsuarioApiService {
 
     @POST("api/v1/usuarios/reset-password")
     suspend fun resetPassword(@Body body: Map<String, String>): Response<Unit>
+    
+    @Multipart
+    @POST("api/v1/usuarios/update-photo/{id}")
+    suspend fun updatePhoto(
+        @Path("id") id: Long,
+        @Part photo: MultipartBody.Part
+    ): Response<Unit>
 }

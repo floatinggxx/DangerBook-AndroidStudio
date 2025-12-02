@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object UsuarioRemoteModule {
 
-    private const val BASE_URL= "https://3hvtx1tb-8081.brs.devtunnels.ms/"
+    private const val BASE_URL= "https://8md6knrd-8081.brs.devtunnels.ms/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

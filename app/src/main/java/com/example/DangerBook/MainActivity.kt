@@ -116,11 +116,10 @@ fun AppRoot() {
         }
     }
 
-    val handlePhotoUpdated: (String) -> Unit = { photoUri ->
+    val handlePhotoUpdated: (ByteArray) -> Unit = { photoBytes ->
         scope.launch {
             currentUserId?.let { userId ->
-                usuarioRepository.updateUserPhoto(userId, photoUri)
-                userPrefs.updateUserPhoto(photoUri)
+                usuarioRepository.updateUserPhoto(userId, photoBytes)
             }
         }
     }
