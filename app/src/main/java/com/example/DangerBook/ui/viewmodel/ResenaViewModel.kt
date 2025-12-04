@@ -78,7 +78,10 @@ class ResenaViewModel(
             val result = repository.delete(id)
 
             if (result.isSuccess) {
-                loadResenas() // Recargar las reseñas
+                _uiState.update { currentState ->
+                    val updatedResenas = currentState.resenas.filterNot { it.id_resena == id }
+                    currentState.copy(resenas = updatedResenas)
+                }
             } else {
                 _uiState.update { it.copy(errorMsg = "Error al eliminar la reseña: ${result.exceptionOrNull()?.message}") }
             }

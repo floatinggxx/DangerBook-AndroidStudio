@@ -6,7 +6,6 @@ import com.example.DangerBook.data.remoto.service.ResenaApiService
 
 class ResenaRepository {
 
-    // CORRECCIÓN: Usar el RemoteModule correcto para las reseñas
     private val resenaApi: ResenaApiService = ResenaRemoteModule.create(ResenaApiService::class.java)
 
     suspend fun findAll(): Result<List<ResenaDto>> {

@@ -1,5 +1,6 @@
 package com.example.DangerBook.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -23,6 +25,7 @@ fun AdminDashboardScreen(
     onViewReports: () -> Unit, // Ver reportes
     onManageResenas: () -> Unit
 ) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -128,7 +131,10 @@ fun AdminDashboardScreen(
                     title = "Gestionar Reseñas",
                     subtitle = "Eliminar reseñas de usuarios",
                     icon = Icons.Filled.RateReview,
-                    onClick = onManageResenas
+                    onClick = {
+                        Toast.makeText(context, "Click en Gestionar Reseñas", Toast.LENGTH_SHORT).show()
+                        onManageResenas()
+                    }
                 )
             }
 
@@ -191,12 +197,12 @@ private fun AdminActionCard(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit
 ) {
-    Surface(
+    Button(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = MaterialTheme.shapes.medium,
-        shadowElevation = 2.dp
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -223,7 +229,8 @@ private fun AdminActionCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = subtitle,

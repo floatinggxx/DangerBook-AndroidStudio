@@ -1,4 +1,4 @@
-package com.example.dangerbook.ui.screen
+package com.example.DangerBook.ui.screen
 
 import android.annotation.SuppressLint
 import android.widget.Toast
@@ -176,6 +176,7 @@ private fun ResenaCard(
     isAdmin: Boolean,
     onDelete: (Int) -> Unit
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(2.dp)
@@ -217,7 +218,11 @@ private fun ResenaCard(
             if (isAdmin) {
                 Spacer(modifier = Modifier.height(8.dp))
                 IconButton(
-                    onClick = { resena.id_resena?.let { onDelete(it) } },
+                    onClick = {
+                        resena.id_resena?.let {
+                            onDelete(it)
+                        } ?: Toast.makeText(context, "Error: La reseña no tiene un ID para eliminar.", Toast.LENGTH_SHORT).show()
+                    },
                     modifier = Modifier.align(Alignment.End)
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar reseña", tint = MaterialTheme.colorScheme.error)

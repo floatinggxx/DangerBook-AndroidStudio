@@ -4,29 +4,42 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.runtime.*
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.DangerBook.ui.screen.AdminDashboardScreen
-import kotlinx.coroutines.launch
-import com.example.DangerBook.ui.components.AppTopBar
 import com.example.DangerBook.ui.components.AppDrawer
+import com.example.DangerBook.ui.components.AppTopBar
 import com.example.DangerBook.ui.components.authenticatedDrawerItems
 import com.example.DangerBook.ui.components.defaultDrawerItems
-import com.example.DangerBook.ui.screen.* 
+import com.example.DangerBook.ui.screen.AdminDashboardScreen
+import com.example.DangerBook.ui.screen.BarberAppointmentsScreen
+import com.example.DangerBook.ui.screen.BookAppointmentScreen
+import com.example.DangerBook.ui.screen.ForgotPasswordScreen
+import com.example.DangerBook.ui.screen.HomeScreen
+import com.example.DangerBook.ui.screen.LoginScreenVm
+import com.example.DangerBook.ui.screen.MyAppointmentsScreen
+import com.example.DangerBook.ui.screen.ProfileScreen
+import com.example.DangerBook.ui.screen.RegisterScreenVm
+import com.example.DangerBook.ui.screen.ResenasScreen
+import com.example.DangerBook.ui.screen.ServicesScreen
 import com.example.DangerBook.ui.viewmodel.AdminViewModel
-import com.example.DangerBook.ui.viewmodel.AuthViewModel
-import com.example.DangerBook.ui.viewmodel.ServicesViewModel
 import com.example.DangerBook.ui.viewmodel.AppointmentViewModel
+import com.example.DangerBook.ui.viewmodel.AuthViewModel
 import com.example.DangerBook.ui.viewmodel.ResenaViewModel
-import com.example.dangerbook.ui.screen.ResenasScreen
+import com.example.DangerBook.ui.viewmodel.ServicesViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavGraph(
@@ -53,22 +66,22 @@ fun AppNavGraph(
 
     val isAuthenticated = currentUserId != null
 
-    val goHome: () -> Unit = { navController.navigate(Route.Home.path) }
-    val goLogin: () -> Unit = { navController.navigate(Route.Login.path) }
-    val goRegister: () -> Unit = { navController.navigate(Route.Register.path) }
-    val goForgotPassword: () -> Unit = { navController.navigate(Route.ForgotPassword.path) }
-    val goServices: () -> Unit = { navController.navigate(Route.Services.path) }
-    val goBookAppointment: () -> Unit = { navController.navigate(Route.BookAppointment.path) }
-    val goMyAppointments: () -> Unit = { navController.navigate(Route.MyAppointments.path) }
-    val goProfile: () -> Unit = { navController.navigate(Route.Profile.path) }
-    val goReviews: () -> Unit = { navController.navigate(Route.Reviews.path) } // Navegación a reseñas
-    val goAdminDashboard: () -> Unit = { navController.navigate(Route.AdminDashboard.path) }
-    val goBarberAppointments: () -> Unit = { navController.navigate(Route.BarberAppointments.path) }
+    val goHome: () -> Unit = { navController.navigate("home") }
+    val goLogin: () -> Unit = { navController.navigate("login") }
+    val goRegister: () -> Unit = { navController.navigate("register") }
+    val goForgotPassword: () -> Unit = { navController.navigate("forgot_password") }
+    val goServices: () -> Unit = { navController.navigate("services") }
+    val goBookAppointment: () -> Unit = { navController.navigate("book_appointment") }
+    val goMyAppointments: () -> Unit = { navController.navigate("my_appointments") }
+    val goProfile: () -> Unit = { navController.navigate("profile") }
+    val goReviews: () -> Unit = { navController.navigate("reviews") } // Navegación a reseñas
+    val goAdminDashboard: () -> Unit = { navController.navigate("admin_dashboard") }
+    val goBarberAppointments: () -> Unit = { navController.navigate("barber_appointments") }
 
     val handleLogout: () -> Unit = {
         scope.launch { drawerState.close() }
         onLogout()
-        navController.navigate(Route.Home.path) {
+        navController.navigate("home") {
             popUpTo(navController.graph.startDestinationId) { inclusive = true }
         }
     }
@@ -159,11 +172,11 @@ fun AppNavGraph(
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Route.Home.path,
+                startDestination = "home",
                 modifier = Modifier.padding(innerPadding)
             ) {
 
-                composable(Route.Home.path) {
+                composable("home") {
                     HomeScreen(
                         isAuthenticated = isAuthenticated,
                         onGoLogin = goLogin,
@@ -174,7 +187,7 @@ fun AppNavGraph(
                     )
                 }
 
-                composable(Route.Login.path) {
+                composable("login") {
                     DisposableEffect(Unit) {
                         onDispose {
                             authViewModel.clearLoginForm()
@@ -183,8 +196,8 @@ fun AppNavGraph(
                     LoginScreenVm(
                         vm = authViewModel,
                         onLoginOkNavigateHome = {
-                            navController.navigate(Route.Services.path) {
-                                popUpTo(Route.Home.path) { inclusive = false }
+                            navController.navigate("services") {
+                                popUpTo("home") { inclusive = false }
                             }
                         },
                         onGoRegister = goRegister,
@@ -192,7 +205,7 @@ fun AppNavGraph(
                     )
                 }
 
-                composable(Route.Register.path) {
+                composable("register") {
                     DisposableEffect(Unit) {
                         onDispose {
                             authViewModel.clearRegisterForm()
@@ -205,16 +218,16 @@ fun AppNavGraph(
                     )
                 }
                 
-                composable(Route.ForgotPassword.path) {
+                composable("forgot_password") {
                     ForgotPasswordScreen(
                         navController = navController,
                         authViewModel = authViewModel
                     )
                 }
 
-                composable(Route.Services.path) {
+                composable("services") {
                     if (!isAuthenticated) {
-                        navController.navigate(Route.Login.path)
+                        navController.navigate("login")
                     } else {
                         ServicesScreen(
                             vm = servicesViewModel,
@@ -225,15 +238,15 @@ fun AppNavGraph(
                     }
                 }
 
-                composable(Route.BookAppointment.path) {
+                composable("book_appointment") {
                     if (!isAuthenticated) {
-                        navController.navigate(Route.Login.path)
+                        navController.navigate("login")
                     } else {
                         BookAppointmentScreen(
                             appointmentVm = appointmentViewModel,
                             servicesVm = servicesViewModel,
                             onAppointmentBooked = {
-                                navController.navigate(Route.Home.path) {
+                                navController.navigate("home") {
                                     popUpTo(navController.graph.startDestinationId) {
                                         inclusive = true
                                     }
@@ -244,9 +257,9 @@ fun AppNavGraph(
                     }
                 }
 
-                composable(Route.MyAppointments.path) {
+                composable("my_appointments") {
                     if (!isAuthenticated) {
-                        navController.navigate(Route.Login.path)
+                        navController.navigate("login")
                     } else {
                         MyAppointmentsScreen(
                             vm = appointmentViewModel,
@@ -255,9 +268,9 @@ fun AppNavGraph(
                     }
                 }
 
-                composable(Route.Profile.path) {
+                composable("profile") {
                     if (!isAuthenticated) {
-                        navController.navigate(Route.Login.path)
+                        navController.navigate("login")
                     } else {
                         ProfileScreen(
                             userId = currentUserId!!,
@@ -275,9 +288,9 @@ fun AppNavGraph(
                     }
                 }
                 
-                 composable(Route.Reviews.path) { // Nueva pantalla de reseñas
+                 composable("reviews") { // Nueva pantalla de reseñas
                     if (!isAuthenticated) {
-                        navController.navigate(Route.Login.path)
+                        navController.navigate("login")
                     } else {
                         ResenasScreen(
                             vm = resenaViewModel,
@@ -286,9 +299,9 @@ fun AppNavGraph(
                     }
                 }
 
-                composable(Route.AdminDashboard.path) {
+                composable("admin_dashboard") {
                     if (currentUserRole != "admin") {
-                        navController.navigate(Route.Home.path) { popUpTo(Route.Home.path) { inclusive = true } }                    } else {
+                        navController.navigate("home") { popUpTo("home") { inclusive = true } }                    } else {
                         val adminState by adminViewModel.uiState.collectAsState()
 
                         if (adminState.isLoading) {
@@ -309,9 +322,9 @@ fun AppNavGraph(
                     }
                 }
 
-                composable(Route.BarberAppointments.path) {
+                composable("barber_appointments") {
                     if (currentUserRole != "barber" || currentUserId == null) {
-                        navController.navigate(Route.Home.path) { popUpTo(Route.Home.path) { inclusive = true } }                    } else {
+                        navController.navigate("home") { popUpTo("home") { inclusive = true } }                    } else {
                         LaunchedEffect(Unit) {
                             appointmentViewModel.loadBarberAppointments(currentUserId)
                         }
