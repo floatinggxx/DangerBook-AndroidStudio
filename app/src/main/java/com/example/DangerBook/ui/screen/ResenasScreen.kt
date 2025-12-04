@@ -1,13 +1,14 @@
-package com.example.DangerBook.ui.screen
+package com.example.dangerbook.ui.screen
 
+import android.annotation.SuppressLint
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,7 +28,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResenasScreen(
-    vm: ResenaViewModel
+    vm: ResenaViewModel,
+    isAdmin: Boolean = false
 ) {
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -56,17 +58,19 @@ fun ResenasScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                NewResenaForm(vm = vm, isSubmitting = uiState.isSubmitting)
-            }
+            if (!isAdmin) {
+                item {
+                    NewResenaForm(vm = vm, isSubmitting = uiState.isSubmitting)
+                }
 
-            item {
-                Divider(modifier = Modifier.padding(vertical = 16.dp))
+                item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                }
             }
 
             item {
                 Text(
-                    text = "Lo que dicen nuestros clientes",
+                    text = if (isAdmin) "Gestionar Reseñas" else "Lo que dicen nuestros clientes",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -81,10 +85,14 @@ fun ResenasScreen(
             } else if (uiState.errorMsg != null) {
                 item { Text(text = uiState.errorMsg!!, color = MaterialTheme.colorScheme.error) }
             } else if (uiState.resenas.isEmpty()) {
-                item { Text("Todavía no hay reseñas. ¡Sé el primero!") }
+                item { Text("Todavía no hay reseñas.") }
             } else {
                 items(uiState.resenas) { resena ->
-                    ResenaCard(resena = resena)
+                    ResenaCard(
+                        resena = resena,
+                        isAdmin = isAdmin,
+                        onDelete = { vm.deleteResena(it) }
+                    )
                 }
             }
         }
@@ -97,7 +105,7 @@ private fun NewResenaForm(
     isSubmitting: Boolean
 ) {
     var comentario by remember { mutableStateOf("") }
-    var calificacion by remember { mutableStateOf(0) }
+    var calificacion by remember { mutableIntStateOf(0) }
 
     Column(
         modifier = Modifier
@@ -134,7 +142,7 @@ private fun NewResenaForm(
             if (isSubmitting) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
             } else {
-                Icon(Icons.Default.Send, contentDescription = "Enviar")
+                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Enviar")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Enviar Reseña")
             }
@@ -161,8 +169,13 @@ private fun RatingBar(
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
-private fun ResenaCard(resena: ResenaDto) {
+private fun ResenaCard(
+    resena: ResenaDto,
+    isAdmin: Boolean,
+    onDelete: (Int) -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(2.dp)
@@ -181,12 +194,12 @@ private fun ResenaCard(resena: ResenaDto) {
                          Icon(Icons.Default.Star, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
                     }
                 }
-                // CORRECCIÓN: Manejar el caso en que la fecha es nula
+                // Added SuppressLint("NewApi") for LocalDate usage
                 val formattedDate = if (!resena.f_publicacion.isNullOrBlank()) {
                     try {
                         LocalDate.parse(resena.f_publicacion).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                    } catch (e: Exception) {
-                        resena.f_publicacion // Fallback si el formato es inesperado
+                    } catch (_: Exception) {
+                        resena.f_publicacion
                     }
                 } else {
                     "Fecha no disponible"
@@ -200,6 +213,16 @@ private fun ResenaCard(resena: ResenaDto) {
                 text = resena.comentario ?: "",
                 style = MaterialTheme.typography.bodyMedium
             )
+
+            if (isAdmin) {
+                Spacer(modifier = Modifier.height(8.dp))
+                IconButton(
+                    onClick = { resena.id_resena?.let { onDelete(it) } },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar reseña", tint = MaterialTheme.colorScheme.error)
+                }
+            }
         }
     }
 }

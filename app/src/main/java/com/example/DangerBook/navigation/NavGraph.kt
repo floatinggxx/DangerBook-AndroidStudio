@@ -26,6 +26,7 @@ import com.example.DangerBook.ui.viewmodel.AuthViewModel
 import com.example.DangerBook.ui.viewmodel.ServicesViewModel
 import com.example.DangerBook.ui.viewmodel.AppointmentViewModel
 import com.example.DangerBook.ui.viewmodel.ResenaViewModel
+import com.example.dangerbook.ui.screen.ResenasScreen
 
 @Composable
 fun AppNavGraph(
@@ -278,7 +279,10 @@ fun AppNavGraph(
                     if (!isAuthenticated) {
                         navController.navigate(Route.Login.path)
                     } else {
-                        ResenasScreen(vm = resenaViewModel)
+                        ResenasScreen(
+                            vm = resenaViewModel,
+                            isAdmin = currentUserRole == "admin"
+                        )
                     }
                 }
 
@@ -298,6 +302,7 @@ fun AppNavGraph(
                                 totalBarbers = adminState.totalBarbers,
                                 onManageUsers = {},
                                 onManageServices = {},
+                                onManageResenas = goReviews,
                                 onViewReports = {}
                             )
                         }

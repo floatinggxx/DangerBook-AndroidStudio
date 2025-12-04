@@ -73,6 +73,18 @@ class ResenaViewModel(
         }
     }
 
+    fun deleteResena(id: Int) {
+        viewModelScope.launch {
+            val result = repository.delete(id)
+
+            if (result.isSuccess) {
+                loadResenas() // Recargar las reseñas
+            } else {
+                _uiState.update { it.copy(errorMsg = "Error al eliminar la reseña: ${result.exceptionOrNull()?.message}") }
+            }
+        }
+    }
+
     // Resetea el estado de éxito para evitar que la UI reaccione múltiples veces
     fun resetSubmissionStatus() {
         _uiState.update { it.copy(submissionSuccess = false, errorMsg = null) }

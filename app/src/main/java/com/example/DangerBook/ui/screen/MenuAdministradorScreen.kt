@@ -20,7 +20,8 @@ fun AdminDashboardScreen(
     totalBarbers: Int, // Total de barberos
     onManageUsers: () -> Unit, // Ir a gestión de usuarios
     onManageServices: () -> Unit, // Ir a gestión de servicios
-    onViewReports: () -> Unit // Ver reportes
+    onViewReports: () -> Unit, // Ver reportes
+    onManageResenas: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -119,6 +120,15 @@ fun AdminDashboardScreen(
                     subtitle = "Agregar, editar o eliminar servicios",
                     icon = Icons.Filled.Build,
                     onClick = onManageServices
+                )
+            }
+
+            item {
+                AdminActionCard(
+                    title = "Gestionar Reseñas",
+                    subtitle = "Eliminar reseñas de usuarios",
+                    icon = Icons.Filled.RateReview,
+                    onClick = onManageResenas
                 )
             }
 
