@@ -1,3 +1,4 @@
+
 package com.example.DangerBook
 import android.Manifest
 import android.os.Build
@@ -17,6 +18,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.DangerBook.data.local.database.AppDatabase
 import com.example.DangerBook.data.local.notifications.NotificationHelper
 import com.example.DangerBook.data.local.storage.UserPreferences
+import com.example.DangerBook.data.remoto.service.UsuarioApiService
+import com.example.DangerBook.data.remoto.service.UsuarioRemoteModule
 import com.example.DangerBook.data.repository.*
 import com.example.DangerBook.navigation.AppNavGraph
 import com.example.DangerBook.ui.viewmodel.*
@@ -69,6 +72,9 @@ fun AppRoot() {
     val serviceDao = db.serviceDao()
     val appointmentDao = db.appointmentDao()
 
+    // Api Services
+    val usuarioApiService = UsuarioRemoteModule.create(UsuarioApiService::class.java)
+
     // Repositorios
     val usuarioRepository = UsuarioRepository(userDao)
     val servicioRepository = ServicioRepository(serviceDao, userDao)
@@ -87,6 +93,7 @@ fun AppRoot() {
     val servicesViewModel: ServicesViewModel = viewModel(factory = ServiciosViewModelFactory(servicioRepository))
     val appointmentViewModel: AppointmentViewModel = viewModel(factory = CitaViewModelFactory(repository = citaRepository, userPreferences = userPrefs))
     val resenaViewModel: ResenaViewModel = viewModel(factory = ResenaViewModelFactory(resenaRepository))
+    val userListViewModel: UserListViewModel = viewModel(factory = UserListViewModelFactory(usuarioApiService))
 
     val currentUserId by userPrefs.userId.collectAsStateWithLifecycle(null)
     val currentUserName by userPrefs.userName.collectAsStateWithLifecycle(null)
@@ -167,6 +174,7 @@ fun AppRoot() {
             appointmentViewModel = appointmentViewModel,
             adminViewModel = adminViewModel,
             resenaViewModel = resenaViewModel,
+            userListViewModel = userListViewModel,
             currentUserId = currentUserId,
             currentUserName = currentUserName,
             currentUserEmail = currentUserEmail,

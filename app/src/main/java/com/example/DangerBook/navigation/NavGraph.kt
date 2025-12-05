@@ -1,3 +1,4 @@
+
 package com.example.DangerBook.navigation
 
 import androidx.compose.foundation.layout.Box
@@ -34,11 +35,13 @@ import com.example.DangerBook.ui.screen.ProfileScreen
 import com.example.DangerBook.ui.screen.RegisterScreenVm
 import com.example.DangerBook.ui.screen.ResenasScreen
 import com.example.DangerBook.ui.screen.ServicesScreen
+import com.example.DangerBook.ui.screen.UserListScreen
 import com.example.DangerBook.ui.viewmodel.AdminViewModel
 import com.example.DangerBook.ui.viewmodel.AppointmentViewModel
 import com.example.DangerBook.ui.viewmodel.AuthViewModel
 import com.example.DangerBook.ui.viewmodel.ResenaViewModel
 import com.example.DangerBook.ui.viewmodel.ServicesViewModel
+import com.example.DangerBook.ui.viewmodel.UserListViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -49,6 +52,7 @@ fun AppNavGraph(
     appointmentViewModel: AppointmentViewModel,
     adminViewModel: AdminViewModel,
     resenaViewModel: ResenaViewModel, // ViewModel de reseñas
+    userListViewModel: UserListViewModel,
     currentUserId: Long?,
     currentUserName: String?,
     currentUserEmail: String?,
@@ -77,6 +81,7 @@ fun AppNavGraph(
     val goReviews: () -> Unit = { navController.navigate("reviews") } // Navegación a reseñas
     val goAdminDashboard: () -> Unit = { navController.navigate("admin_dashboard") }
     val goBarberAppointments: () -> Unit = { navController.navigate("barber_appointments") }
+    val goManageUsers: () -> Unit = { navController.navigate("manage_users") }
 
     val handleLogout: () -> Unit = {
         scope.launch { drawerState.close() }
@@ -217,7 +222,7 @@ fun AppNavGraph(
                         onGoLogin = goLogin
                     )
                 }
-                
+
                 composable("forgot_password") {
                     ForgotPasswordScreen(
                         navController = navController,
@@ -287,7 +292,7 @@ fun AppNavGraph(
                         )
                     }
                 }
-                
+
                  composable("reviews") { // Nueva pantalla de reseñas
                     if (!isAuthenticated) {
                         navController.navigate("login")
@@ -313,7 +318,7 @@ fun AppNavGraph(
                                 totalAppointments = adminState.totalAppointments,
                                 totalUsers = adminState.totalUsers,
                                 totalBarbers = adminState.totalBarbers,
-                                onManageUsers = {},
+                                onManageUsers = goManageUsers,
                                 onManageServices = {},
                                 onManageResenas = goReviews,
                                 onViewReports = {}
@@ -346,6 +351,14 @@ fun AppNavGraph(
                                 }
                             )
                         }
+                    }
+                }
+
+                composable("manage_users") {
+                    if (currentUserRole != "admin") {
+                        navController.navigate("home") { popUpTo("home") { inclusive = true } }                    } else {
+                        val users by userListViewModel.users.collectAsState()
+                        UserListScreen(users = users, onNavigateBack = { navController.popBackStack() })
                     }
                 }
             }
