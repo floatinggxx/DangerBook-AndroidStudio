@@ -44,6 +44,17 @@ data class RegisterUiState(
     val errorMsg: String? = null
 )
 
+// Estado de UI para actualizar contraseña
+data class UpdatePasswordUiState(
+    val email: String = "",
+    val oldPassword: String = "",
+    val newPassword: String = "",
+    val confirmPassword: String = "",
+    val isSubmitting: Boolean = false,
+    val success: Boolean = false,
+    val errorMsg: String? = null
+)
+
 class AuthViewModel(
     private val repository: UsuarioRepository
 ) : ViewModel() {
@@ -54,6 +65,9 @@ class AuthViewModel(
 
     private val _register = MutableStateFlow(RegisterUiState())
     val register: StateFlow<RegisterUiState> = _register
+
+    private val _updatePasswordState = MutableStateFlow(UpdatePasswordUiState())
+    val updatePasswordState: StateFlow<UpdatePasswordUiState> = _updatePasswordState
 
     // ========== LOGIN ==========
 
@@ -86,7 +100,6 @@ class AuthViewModel(
 
             _login.update {
                 if (result.isSuccess) {
-                    // Login exitoso: guardamos el usuario
                     it.copy(
                         isSubmitting = false,
                         success = true,
@@ -94,7 +107,6 @@ class AuthViewModel(
                         loggedUser = result.getOrNull()
                     )
                 } else {
-                    // Login fallido
                     it.copy(
                         isSubmitting = false,
                         success = false,
@@ -147,7 +159,6 @@ class AuthViewModel(
 
     fun onRegisterPassChange(value: String) {
         _register.update { it.copy(pass = value, passError = validateStrongPassword(value)) }
-        // Revalidar confirmación
         _register.update { it.copy(confirmError = validateConfirm(it.pass, it.confirm)) }
         recomputeRegisterCanSubmit()
     }
@@ -174,7 +185,7 @@ class AuthViewModel(
 
             val result = repository.register(
                 name = s.name,
-                apellido = s.apellido, // NUEVO
+                apellido = s.apellido,
                 email = s.email,
                 phone = s.phone,
                 pass = s.pass
@@ -201,6 +212,61 @@ class AuthViewModel(
     fun clearRegisterForm() {
         _register.value = RegisterUiState()
     }
+
+    // ========== ACTUALIZAR CONTRASEÑA (PANTALLA "OLVIDÉ CONTRASEÑA") ==========
+
+    fun onUpdatePasswordEmailChange(value: String) {
+        _updatePasswordState.update { it.copy(email = value) }
+    }
+    fun onUpdatePasswordOldPasswordChange(value: String) {
+        _updatePasswordState.update { it.copy(oldPassword = value) }
+    }
+    fun onUpdatePasswordNewPasswordChange(value: String) {
+        _updatePasswordState.update { it.copy(newPassword = value) }
+    }
+    fun onUpdatePasswordConfirmPasswordChange(value: String) {
+        _updatePasswordState.update { it.copy(confirmPassword = value) }
+    }
+
+    fun updatePassword() {
+        val s = _updatePasswordState.value
+        if(s.newPassword != s.confirmPassword) {
+            _updatePasswordState.update { it.copy(errorMsg = "Las contraseñas no coinciden") }
+            return
+        }
+
+        viewModelScope.launch {
+            _updatePasswordState.update { it.copy(isSubmitting = true, errorMsg = null, success = false) }
+
+            val result = repository.updatePasswordByEmail(
+                email = s.email,
+                oldPass = s.oldPassword,
+                newPass = s.newPassword
+            )
+
+            _updatePasswordState.update {
+                if (result.isSuccess) {
+                    it.copy(isSubmitting = false, success = true, errorMsg = null)
+                } else {
+                    it.copy(
+                        isSubmitting = false,
+                        success = false,
+                        errorMsg = result.exceptionOrNull()?.message ?: "Error desconocido"
+                    )
+                }
+            }
+        }
+    }
+
+    fun clearUpdatePasswordState() {
+        _updatePasswordState.value = UpdatePasswordUiState()
+    }
+
+    fun clearUpdatePasswordError() {
+        _updatePasswordState.update { it.copy(errorMsg = null) }
+    }
+
+    // ========== ACTUALIZACIONES DE PERFIL (PARA MAINACTIVITY) ==========
 
     fun updateUserName(userId: Long, newName: String) {
         viewModelScope.launch {
@@ -243,6 +309,8 @@ class AuthViewModel(
             repository.updateUserPassword(userId, newPass)
         }
     }
+
+    // ========== OTROS ==========
 
     fun resetPassword(email: String) {
         viewModelScope.launch {

@@ -186,6 +186,32 @@ class UsuarioRepository(
         }
     }
 
+    suspend fun updatePasswordByEmail(email: String, oldPass: String, newPass: String): Result<Unit> {
+        return try {
+            val localUser = userDao.getByEmail(email)
+                ?: return Result.failure(Exception("Usuario no encontrado en la base de datos local."))
+
+            val requestBody = mapOf(
+                "userId" to localUser.id.toString(),
+                "oldPassword" to oldPass,
+                "newPassword" to newPass
+            )
+
+            val response = usuarioApi.updatePassword(requestBody)
+
+            if (response.isSuccessful) {
+                // Si la actualización remota es exitosa, actualizamos la base de datos local
+                userDao.updateUserPassword(localUser.id, newPass)
+                Result.success(Unit)
+            } else {
+                val errorBody = response.errorBody()?.string() ?: "Error desconocido del servidor"
+                Result.failure(Exception(errorBody))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun resetPassword(email: String): Result<Unit> {
         return try {
             val response = usuarioApi.resetPassword(mapOf("email" to email))

@@ -25,6 +25,9 @@ interface UsuarioApiService {
 
     @POST("api/v1/usuarios/reset-password")
     suspend fun resetPassword(@Body body: Map<String, String>): Response<Unit>
+
+    @POST("api/v1/usuarios/update-password")
+    suspend fun updatePassword(@Body body: Map<String, String>): Response<Unit>
     
     @Multipart
     @POST("api/v1/usuarios/update-photo/{id}")
